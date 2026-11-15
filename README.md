@@ -1,5 +1,7 @@
 # Fontana Mix 2026
 
+[![DOI](https://zenodo.org/badge/1458511382.svg)](https://doi.org/10.5281/zenodo.24241992)
+
 ### A chance-operations score generator for human–AI co-creative practice
 
 Fontana Mix 2026 generates studio scores by chance operation. Two eight-sided dice cast an I Ching hexagram (King Wen sequence), and that hexagram deterministically produces a composite score: selections from three vocabulary sheets (Language, Image, Process), a compositional diagram governing placement, rotation and scale, a set of generated mark fields, and a prompt directive for generative image synthesis. The score is a suggestion the performer may follow, vary, or refuse — and the record keeps all three.
