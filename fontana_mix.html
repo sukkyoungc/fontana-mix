@@ -1,0 +1,2361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FONTANA MIX 2026 — neural collage score generator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: #0a0a0a; color: #d4cfc8; font-family: 'Courier New', monospace; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  button { font-family: 'Courier New', monospace; cursor: pointer; }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: #0a0a0a; }
+  ::-webkit-scrollbar-thumb { background: #222; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Layout */
+  #app { display: flex; flex-direction: column; min-height: 100vh; }
+  #header { padding: 26px 30px 18px; border-bottom: 1px solid #2a2a2a; display: flex; justify-content: space-between; align-items: flex-end; flex-shrink: 0; }
+  #header-left .title { font-size: 21px; letter-spacing: 0.35em; color: #e8e0d6; text-transform: uppercase; }
+  #header-left .subtitle { font-size: 13px; letter-spacing: 0.2em; color: #777; margin-top: 5px; text-transform: uppercase; }
+  #header-right { display: flex; align-items: flex-end; gap: 18px; }
+  .header-btn { background: none; border: none; color: #888; font-size: 13px; letter-spacing: 0.18em; padding: 0; transition: color 0.2s; }
+  .header-btn:hover { color: #c8a97e; }
+  .header-dim { font-size: 13px; color: #7c7c7c; text-align: right; letter-spacing: 0.1em; transition: color 0.2s; line-height: 1.6; }
+  .header-dim:hover { color: #888; }
+  .header-f11 { font-size: 16px; color: #7c7c7c; letter-spacing: 0.12em; transition: color 0.2s; cursor: default; }
+  .header-f11:hover { color: #999; }
+
+  /* Sheet grid */
+  #grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr; border-bottom: 1px solid #2a2a2a; overflow: hidden; }
+  .sheet-col { border-right: 1px solid #282828; display: flex; flex-direction: column; overflow-y: auto; }
+  .sheet-header { padding: 13px 15px; border-bottom: 1px solid #282828; cursor: pointer; display: flex; align-items: center; gap: 9px; user-select: none; transition: background 0.2s; position: sticky; top: 0; z-index: 10; background: #0a0a0a; }
+  .sheet-header:hover { background: #0e0e0e !important; }
+  .sheet-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; transition: background-color 0.3s; }
+  .sheet-label { font-size: 13px; letter-spacing: 0.2em; transition: opacity 0.3s; }
+  .sheet-sublabel { font-size: 16px; color: #4a4a4a; margin-top: 2px; }
+  .sheet-svg-wrap { position: relative; height: 130px; border-bottom: 1px solid #282828; overflow: hidden; background: #070707; flex-shrink: 0; }
+  .sheet-svg-wrap svg { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity 0.6s ease; }
+  .spin-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .spinner { width: 16px; height: 16px; border-radius: 50%; border-top-color: transparent; animation: spin 0.6s linear infinite; }
+  .comp-wrap { padding: 12px 13px; border-bottom: 1px solid #282828; background: #070707; transition: opacity 0.3s; flex-shrink: 0; }
+  .items-list { padding: 10px 12px; transition: opacity 0.3s; }
+  .item { font-size: 13px; padding: 3px 6px; margin-bottom: 2px; letter-spacing: 0.05em; border-left: 1px solid transparent; transition: all 0.5s ease; }
+  .item.lit { border-left-width: 1px; }
+
+  /* Score column */
+  .score-col { display: flex; flex-direction: column; overflow-y: auto; }
+  .score-header { padding: 13px 15px; border-bottom: 1px solid #282828; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: #0f0d0b; }
+  .score-header-label { font-size: 15px; letter-spacing: 0.2em; color: #777; }
+  .score-header-sub { font-size: 16px; color: #7a7a7a; margin-top: 2px; }
+  .cast-count { font-size: 13px; color: #7a7a7a; }
+
+  /* Dice display */
+  #dice-display { display: flex; flex-direction: column; align-items: center; padding: 18px 20px; gap: 12px; border-bottom: 1px solid #1e1e1e; background: #090909; flex-shrink: 0; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  .dice-label { font-size: 16px; color: #888; letter-spacing: 0.22em; }
+  .dice-row { display: flex; align-items: center; gap: 18px; }
+  .die-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .die-element-label { font-size: 16px; color: #9a8a6a; letter-spacing: 0.12em; text-align: center; }
+  .hex-display { text-align: center; font-family: 'Courier New', monospace; line-height: 1.9; border-top: 1px solid #2a2a2a; padding-top: 12px; width: 100%; }
+  .hex-glyph { font-size: 22px; color: #c8a97e; letter-spacing: 0.1em; }
+  .hex-trigrams { font-size: 13px; color: #9a8a6a; letter-spacing: 0.18em; margin-top: 2px; }
+  .hex-name { font-size: 19px; color: #d4c4a0; letter-spacing: 0.1em; margin-top: 5px; }
+  .no-throw { font-size: 13px; color: #7c7c7c; font-style: italic; letter-spacing: 0.1em; }
+
+  /* Image bank */
+  #bank-wrap { border-bottom: 1px solid #282828; background: #080808; flex-shrink: 0; }
+  .bank-dropzone { margin: 10px 12px; padding: 16px 10px; border: 1px dashed #383838; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: border-color 0.2s, background 0.2s; }
+  .bank-dropzone.dragover { border-color: #c8a97e88; background: #c8a97e08; }
+  .bank-dz-title { font-size: 16px; color: #777; letter-spacing: 0.2em; text-align: center; }
+  .bank-dz-instruction { font-size: 13px; color: #7c7c7c; letter-spacing: 0.08em; text-align: center; line-height: 1.8; transition: color 0.2s; }
+  .bank-dropzone.dragover .bank-dz-instruction { color: #c8a97e99; }
+  .bank-dz-hint { font-size: 16px; color: #747474; letter-spacing: 0.08em; text-align: center; line-height: 1.6; font-style: italic; }
+  .bank-browse-btn { margin-top: 4px; padding: 5px 14px; border: 1px solid #383838; font-size: 16px; color: #777; letter-spacing: 0.16em; cursor: pointer; transition: all 0.2s; background: transparent; }
+  .bank-browse-btn:hover { color: #c8a97e; border-color: #c8a97e55; }
+  .bank-loaded { padding: 10px 12px; }
+  .bank-loaded-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .bank-loaded-title { font-size: 16px; letter-spacing: 0.2em; color: #777; }
+  .bank-btns { display: flex; gap: 10px; align-items: center; }
+  .bank-counter { font-size: 16px; color: #777; letter-spacing: 0.1em; }
+  .bank-btn { background: none; border: none; color: #7c7c7c; font-size: 16px; letter-spacing: 0.1em; padding: 0; transition: color 0.2s; }
+  .bank-btn:hover { color: #c8a97e; }
+  .bank-btn.hide-btn:hover { color: #aaa; }
+  .bank-exhausted { padding: 12px 0; text-align: center; }
+  .bank-exhausted-msg { font-size: 13px; color: #777; letter-spacing: 0.12em; margin-bottom: 10px; }
+  .bank-reshuffle-btn { padding: 7px 16px; background: transparent; border: 1px solid #484848; color: #777; font-size: 13px; letter-spacing: 0.2em; cursor: pointer; transition: all 0.2s; font-family: 'Courier New', monospace; }
+  .bank-reshuffle-btn:hover { color: #c8a97e; border-color: #c8a97e44; }
+  .bank-image-wrap img { width: 100%; display: block; max-height: 200px; object-fit: contain; border: 1px solid #222; background: #070707; }
+  .bank-image-name { margin-top: 5px; font-size: 16px; color: #7c7c7c; letter-spacing: 0.08em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bank-await { font-size: 13px; color: #888; font-style: italic; padding: 8px 0; }
+  /* Staging UI (Stage 1 redesign) */
+  .bank-staging { margin: 10px 12px; padding: 14px 12px; border: 1px dashed #383838; }
+  .bank-staging.dragover { border-color: #c8a97e88; background: #c8a97e08; }
+  .bank-staging-title { font-size: 16px; color: #777; letter-spacing: 0.2em; text-align: center; margin-bottom: 8px; }
+  .bank-staging-count { font-size: 14px; color: #9a8a6a; letter-spacing: 0.06em; text-align: center; line-height: 1.7; margin-bottom: 10px; }
+  .bank-staging-count .zero { color: #666; font-style: italic; }
+  .bank-staging-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .bank-policy-row { display: flex; gap: 6px; justify-content: center; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .bank-policy-label { font-size: 12px; color: #666; letter-spacing: 0.1em; margin-right: 4px; }
+  .bank-policy-btn { padding: 4px 11px; border: 1px solid #333; background: transparent; color: #777; font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; }
+  .bank-policy-btn:hover { color: #c8a97e; border-color: #c8a97e44; }
+  .bank-policy-btn.active { color: #c8a97e; border-color: #c8a97e88; background: #c8a97e0a; }
+  .bank-commit-btn { padding: 7px 20px; background: transparent; border: 1px solid #c8a97e66; color: #c8a97e; font-family: 'Courier New', monospace; font-size: 13px; letter-spacing: 0.18em; cursor: pointer; transition: all 0.2s; }
+  .bank-commit-btn:hover { background: #c8a97e11; border-color: #c8a97e; }
+  .bank-commit-btn:disabled { opacity: 0.35; cursor: default; }
+  .bank-commit-btn:disabled:hover { background: transparent; border-color: #c8a97e66; }
+  /* Pool browser (Stage 2 — override) */
+  #pool-overlay { position: fixed; inset: 0; background: #030303cc; z-index: 110; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+  #pool-panel { width: min(880px, 94vw); max-height: 86vh; background: #0d0d0b; border: 1px solid #2a2820; box-shadow: 0 8px 48px #00000088, 0 0 0 1px #c8a97e11; font-family: 'Courier New', monospace; display: flex; flex-direction: column; }
+  #pool-header { padding: 16px 24px; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  #pool-title { font-size: 13px; color: #c8a97e; letter-spacing: 0.22em; }
+  #pool-sub { font-size: 12px; color: #777; letter-spacing: 0.08em; margin-top: 4px; }
+  #pool-toolbar { padding: 12px 24px; border-bottom: 1px solid #1a1a1a; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; flex-shrink: 0; }
+  .pool-tb-group { display: flex; gap: 8px; align-items: center; }
+  #pool-grid { flex: 1; overflow-y: auto; padding: 20px 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 14px; scrollbar-width: thin; scrollbar-color: #333 #111; align-content: start; }
+  #pool-grid::-webkit-scrollbar { width: 6px; }
+  #pool-grid::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  .pool-empty { grid-column: 1/-1; text-align: center; color: #666; font-style: italic; font-size: 14px; padding: 40px 0; }
+  .pool-item { cursor: pointer; border: 1px solid #222; background: #070707; transition: all 0.15s; position: relative; }
+  .pool-item:hover { border-color: #c8a97e88; }
+  .pool-item img { width: 100%; height: 110px; object-fit: contain; display: block; opacity: 0.92; background: #050505; }
+  .pool-item.used img { opacity: 0.4; }
+  .pool-item.current { border-color: #c8a97e; box-shadow: 0 0 0 1px #c8a97e88; }
+  .pool-item-name { font-size: 10px; color: #888; padding: 4px 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pool-item-status { position: absolute; top: 4px; right: 4px; font-size: 9px; letter-spacing: 0.1em; padding: 1px 5px; border-radius: 2px; }
+  .pool-item.used .pool-item-status { background: #33333388; color: #999; }
+  .pool-item.current .pool-item-status { background: #c8a97e; color: #0d0d0b; }
+  .pool-item-count { position: absolute; top: 4px; left: 4px; font-size: 9px; letter-spacing: 0.05em; padding: 1px 5px; border-radius: 2px; background: #7e9ec8cc; color: #0d0d0b; }
+  .pool-item-remove { position: absolute; bottom: 26px; right: 4px; width: 18px; height: 18px; line-height: 16px; text-align: center; font-size: 13px; background: #030303cc; border: 1px solid #444; color: #999; border-radius: 2px; opacity: 0; transition: opacity 0.15s; }
+  .pool-item:hover .pool-item-remove { opacity: 1; }
+  .pool-item-remove:hover { color: #c88a7e; border-color: #c88a7e88; }
+
+  /* Score card */
+  #score-body { padding: 14px; flex: 1; }
+  .score-empty { color: #888; font-size: 16px; text-align: center; padding: 40px 20px; letter-spacing: 0.1em; }
+  .cast-no { color: #777; font-size: 19px; letter-spacing: 0.2em; margin-bottom: 14px; }
+  .score-block { margin-bottom: 14px; }
+  .score-block-label { letter-spacing: 0.15em; font-size: 19px; margin-bottom: 4px; }
+  .score-block-items { padding-left: 10px; }
+  .score-block-item { line-height: 1.9; font-size: 15px; }
+  .sd-label { margin-top: 18px; color: #888; font-size: 19px; letter-spacing: 0.14em; }
+  .sd-prompt { margin-top: 7px; padding: 10px 12px; border: 1px solid #252525; background: #0d0d0d; color: #b0a898; font-size: 15px; line-height: 1.7; font-style: italic; }
+
+  /* Previous casts */
+  #prev-casts { border-top: 1px solid #282828; padding: 10px 14px; flex-shrink: 0; }
+  .prev-label { font-size: 16px; color: #7a7a7a; letter-spacing: 0.14em; margin-bottom: 7px; }
+  .prev-item { font-size: 16px; color: #787878; margin-bottom: 3px; line-height: 1.5; }
+
+  /* Controls */
+  #controls { padding: 18px 30px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; flex-shrink: 0; }
+  .cast-btn { padding: 11px 36px; background: transparent; border: 1px solid #c8a97e; color: #c8a97e; font-size: 19px; letter-spacing: 0.3em; text-transform: uppercase; transition: all 0.2s; }
+  .cast-btn:hover:not(:disabled) { background: #c8a97e15; }
+  .cast-btn:disabled { opacity: 0.4; cursor: default; }
+  .physical-wrap { display: flex; align-items: center; gap: 10px; border-left: 1px solid #1a1a1a; padding-left: 18px; }
+  .physical-label { font-size: 16px; color: #777; letter-spacing: 0.15em; line-height: 1.6; }
+  .die-input-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .die-input-svg { display: block; }
+  .die-input { position: absolute; inset: 0; width: 100%; height: 100%; background: transparent; border: none; outline: none; font-family: 'Courier New', monospace; font-size: 13px; text-align: center; padding: 0; color: #999; }
+  .die-input.valid { color: #c8a97e; }
+  .die-input-sublabel { font-size: 16px; letter-spacing: 0.1em; text-align: center; line-height: 1.4; color: #7c7c7c; }
+  .enter-btn { padding: 8px 16px; background: transparent; border: 1px solid #484848; color: #7a7a7a; font-size: 13px; letter-spacing: 0.2em; transition: all 0.2s; }
+  .enter-btn.ready { border-color: #888; color: #888; }
+  .enter-btn.ready:hover { color: #c8a97e; border-color: #c8a97e44; }
+  .active-label { font-size: 13px; color: #555; letter-spacing: 0.1em; line-height: 1.8; }
+  .right-btns { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .present-btn { padding: 11px 24px; background: transparent; border: 1px solid #3a3a3a; color: #888; font-size: 13px; letter-spacing: 0.22em; transition: all 0.2s; }
+  .present-btn:hover { color: #c8a97e; border-color: #c8a97e55; }
+  .copy-btn { padding: 11px 22px; background: transparent; border: 1px solid #282828; color: #747474; font-size: 13px; letter-spacing: 0.2em; transition: all 0.2s; }
+  .copy-btn:hover { color: #777; border-color: #707070; }
+
+  /* Composition diagram */
+  .comp-diagram-title { font-size: 13px; color: #707070; letter-spacing: 0.14em; margin-bottom: 7px; }
+  .comp-meta { margin-top: 8px; font-size: 13px; line-height: 1.85; }
+  .comp-principle { opacity: 0.75; }
+  .comp-rot { color: #707070; }
+  .comp-scale { color: #707070; }
+  .comp-note { margin-top: 5px; font-size: 16px; font-style: italic; color: #686868; }
+
+  /* Present mode */
+  #present-overlay { position: fixed; inset: 0; background: #080808; z-index: 50; display: none; flex-direction: column; overflow: hidden; }
+  #present-overlay.active { display: flex; }
+  #present-header { padding: 18px 36px; border-bottom: 1px solid #181818; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  #present-title { font-size: 16px; letter-spacing: 0.35em; color: #909090; }
+  #present-hex { font-size: 15px; color: #8a7a5a; letter-spacing: 0.15em; margin-left: 20px; }
+  #present-body { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; overflow: hidden; }
+
+  /* Present Score overlay — floating score card */
+  #present-score-overlay { position: fixed; inset: 0; background: #030303cc; z-index: 51; display: none; align-items: center; justify-content: center; -webkit-font-smoothing: antialiased; backdrop-filter: blur(3px); }
+  #present-score-overlay.active { display: flex; }
+  #ps-panel { width: min(960px, 92vw); max-height: 88vh; background: #0d0d0b; border: 1px solid #2a2820; box-shadow: 0 8px 48px #00000088, 0 0 0 1px #c8a97e11; display: flex; flex-direction: column; overflow: hidden; }
+  #ps-header { padding: 18px 32px; border-bottom: 1px solid #1e1c18; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: #0f0d0b; }
+  #ps-title { font-size: 14px; letter-spacing: 0.35em; color: #888; }
+  #ps-hex-info { font-size: 13px; color: #7a6a50; letter-spacing: 0.15em; margin-left: 16px; }
+  #ps-body { flex: 1; overflow-y: auto; padding: 32px 40px; scrollbar-width: thin; scrollbar-color: #333 #111; font-family: 'Courier New', monospace; }
+  #ps-body::-webkit-scrollbar { width: 6px; }
+  #ps-body::-webkit-scrollbar-track { background: #111; }
+  #ps-body::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+  .psc-cast-no { color: #777; font-size: 22px; letter-spacing: 0.2em; margin-bottom: 24px; }
+  .psc-block { margin-bottom: 24px; }
+  .psc-block-label { letter-spacing: 0.15em; font-size: 18px; margin-bottom: 10px; }
+  .psc-block-items { padding-left: 14px; }
+  .psc-block-item { line-height: 1.9; font-size: 26px; font-style: italic; }
+  .psc-sd-label { margin-top: 28px; color: #888; font-size: 16px; letter-spacing: 0.14em; margin-bottom: 10px; }
+  .psc-sd-prompt { padding: 14px 18px; border: 1px solid #252520; background: #0a0a08; color: #b0a898; font-size: 18px; line-height: 1.8; font-style: italic; }
+  .present-sheet { border-right: 1px solid #141414; padding: 36px 40px; overflow-y: auto; display: flex; flex-direction: column; }
+  .present-sheet-label { font-size: 13px; letter-spacing: 0.25em; opacity: 0.9; }
+  .present-sheet-sublabel { font-size: 16px; color: #888; margin-top: 4px; letter-spacing: 0.1em; }
+  .present-item { font-size: 27px; line-height: 1.7; padding-left: 18px; margin-bottom: 16px; letter-spacing: 0.03em; border-left-width: 2px; border-left-style: solid; }
+  .present-divider { margin-top: 32px; padding-top: 24px; border-top: 1px solid #2a2a2a; }
+  .present-sublabel { font-size: 13px; letter-spacing: 0.18em; margin-bottom: 12px; }
+  .present-prompt { font-size: 16px; color: #9a9088; line-height: 1.8; font-style: italic; }
+  .present-img { width: 100%; display: block; max-height: 220px; object-fit: contain; border: 1px solid #1c1c1c; background: #070707; margin-top: 8px; }
+  .exit-btn { background: none; border: 1px solid #3a3a3a; color: #909090; font-size: 13px; letter-spacing: 0.2em; padding: 6px 14px; transition: all 0.2s; }
+  .exit-btn:hover { color: #c8a97e; border-color: #c8a97e44; }
+
+  /* About panel */
+  #about-overlay { position: fixed; inset: 0; background: #030303cc; z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+  #about-overlay.active { display: flex; }
+  #about-panel { width: min(680px, 92vw); max-height: 85vh; overflow-y: scroll; background: #0d0d0b; border: 1px solid #2a2820; box-shadow: 0 8px 48px #00000088, 0 0 0 1px #c8a97e11; color: #b8b0a8; padding: 40px 44px; position: relative; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scrollbar-width: thin; scrollbar-color: #444 #1a1a1a; }
+  #about-panel::-webkit-scrollbar { width: 8px; }
+  #about-panel::-webkit-scrollbar-track { background: #1a1a1a; }
+  #about-panel::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+  #about-panel::-webkit-scrollbar-thumb:hover { background: #666; }
+  #back-to-top { position: sticky; bottom: 0; left: 100%; display: block; margin-top: 32px; padding: 6px 14px; background: #0d0d0d; border: 1px solid #2a2a2a; color: #666; font-family: 'Courier New', monospace; font-size: 11px; letter-spacing: 0.15em; cursor: pointer; transition: all 0.2s; float: right; }
+  #back-to-top:hover { color: #c8a97e; border-color: #c8a97e44; }
+  .about-close { position: absolute; top: 18px; right: 22px; background: none; border: none; color: #777; font-size: 15px; letter-spacing: 0.2em; transition: color 0.2s; }
+  .about-close:hover { color: #c8a97e; }
+  .about-title { font-size: 15px; letter-spacing: 0.35em; color: #e8e0d6; margin-bottom: 6px; }
+  .about-subtitle { font-size: 16px; letter-spacing: 0.2em; color: #777; margin-bottom: 36px; }
+  .about-section { margin-bottom: 28px; }
+  .about-section-title { font-size: 16px; letter-spacing: 0.22em; color: #888; margin-bottom: 10px; text-transform: uppercase; }
+  .about-section-body { font-size: 19px; line-height: 1.9; color: #9a9088; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  .about-em { color: #c8b896; }
+  .about-footer { margin-top: 36px; font-size: 16px; color: #888; letter-spacing: 0.15em; line-height: 2.2; }
+
+  /* Session bar */
+  #session-bar { border-bottom: 1px solid #2a2a2a; background: #080808; padding: 8px 30px; display: flex; align-items: center; gap: 16px; min-height: 38px; flex-shrink: 0; }
+  .sess-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; transition: background 0.3s; }
+  .sess-input { background: none; border: none; border-bottom: 1px solid #2e2e2e; outline: none; color: #888; font-family: 'Courier New', monospace; font-size: 13px; letter-spacing: 0.12em; padding-bottom: 2px; transition: border-color 0.2s; }
+  .sess-input:focus { border-bottom-color: #c8a97e55; }
+  .sess-input::placeholder { color: #888; }
+  .sess-input-note { flex: 1; border-bottom-color: #686868; color: #888; }
+  .sess-input-note:focus { border-bottom-color: #c8a97e44; }
+  .sess-begin-btn { background: none; border: 1px solid #3a3a3a; color: #888; font-family: 'Courier New', monospace; font-size: 16px; letter-spacing: 0.2em; padding: 4px 12px; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+  .sess-begin-btn:hover { color: #9ec87e; border-color: #9ec87e44; }
+  .sess-name { font-size: 13px; letter-spacing: 0.15em; flex-shrink: 0; transition: color 0.3s; }
+  .sess-status { font-size: 16px; color: #747474; letter-spacing: 0.1em; flex-shrink: 0; }
+  .sess-note-display { font-size: 16px; color: #686868; letter-spacing: 0.08em; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .sess-right { margin-left: auto; display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+  .sess-ctrl-btn { background: none; border: 1px solid #383838; color: #7c7c7c; font-family: 'Courier New', monospace; font-size: 16px; letter-spacing: 0.18em; padding: 3px 10px; cursor: pointer; transition: all 0.2s; }
+  .sess-ctrl-btn:hover { color: #c8a97e; border-color: #c8a97e44; }
+  .sess-ctrl-btn.resume:hover { color: #9ec87e; border-color: #9ec87e44; }
+  .sess-log-btn { background: none; border: none; color: #747474; font-family: 'Courier New', monospace; font-size: 16px; letter-spacing: 0.15em; cursor: pointer; padding: 0; transition: color 0.2s; }
+  .sess-log-btn:hover { color: #c8a97e; }
+
+  /* Log panel */
+  #log-overlay { position: fixed; inset: 0; background: #030303cc; z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+  #log-overlay.active { display: flex; }
+  #log-panel { width: min(700px, 92vw); max-height: 85vh; display: flex; flex-direction: column; background: #0d0d0b; border: 1px solid #2a2820; box-shadow: 0 8px 48px #00000088, 0 0 0 1px #c8a97e11; font-family: 'Courier New', monospace; position: relative; }
+  #log-header { padding: 18px 24px; border-bottom: 1px solid #2a2a2a; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  #log-title { font-size: 13px; letter-spacing: 0.25em; color: #777; }
+  #log-body { flex: 1; overflow-y: auto; padding: 24px; font-size: 13px; line-height: 1.9; color: #9a9088; white-space: pre-wrap; word-break: break-word; }
+  .log-download-btn { background: none; border: 1px solid #3a3a3a; color: #888; font-family: 'Courier New', monospace; font-size: 16px; letter-spacing: 0.18em; padding: 4px 12px; cursor: pointer; transition: all 0.2s; }
+  .log-download-btn:hover { color: #c8a97e; border-color: #c8a97e44; }
+  .scroll-nav-btn { width: 28px; height: 28px; background: #0d0d0dcc; border: 1px solid #2a2a2a; color: #888; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1; cursor: pointer; transition: all 0.2s; border-radius: 2px; }
+  .scroll-nav-btn:hover { color: #c8a97e; border-color: #c8a97e55; background: #0d0d0d; }
+  .log-close-btn { background: none; border: none; color: #7c7c7c; font-family: 'Courier New', monospace; font-size: 15px; letter-spacing: 0.2em; cursor: pointer; transition: color 0.2s; }
+  .log-close-btn:hover { color: #c8a97e; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <div id="header">
+    <div id="header-left">
+      <div class="title">FONTANA MIX 2026</div>
+      <div class="subtitle">neural collage score generator — after J. Cage (1958) · <span id="version-tag"></span></div>
+    </div>
+    <div id="header-right">
+      <button class="header-btn" onclick="showAbout()">about / instructions</button>
+      <div class="header-f11" onclick="showFullscreenInfo()" title="click for fullscreen help" style="cursor:pointer">⛶ fullscreen</div>
+
+<!-- Fullscreen info popup -->
+<div id="fullscreen-popup" style="display:none;position:fixed;top:52px;right:24px;z-index:200;background:#0d0d0d;border:1px solid #2a2a2a;padding:20px 24px;font-family:'Courier New',monospace;font-size:13px;color:#9a9088;line-height:1.8;max-width:340px;-webkit-font-smoothing:antialiased">
+  <div style="font-size:11px;color:#666;letter-spacing:0.2em;margin-bottom:12px">FULLSCREEN</div>
+  <div><span style="color:#c8a97e">Windows / Linux:</span> press F11</div>
+  <div><span style="color:#c8a97e">Mac (Chrome/Brave):</span> Ctrl + Cmd + F</div>
+  <div><span style="color:#c8a97e">Mac (Firefox):</span> Cmd + Shift + F,<br>&nbsp;&nbsp;then right-click tab bar → Hide Tab Bar</div>
+  <div style="margin-top:14px;font-size:11px;color:#585858">click anywhere to close</div>
+</div>
+      <div class="header-dim">chance operations<br>for human-AI creative process</div>
+    </div>
+  </div>
+
+  <!-- Session bar -->
+  <div id="session-bar">
+    <div class="sess-dot" id="sess-dot"></div>
+    <div id="sess-idle">
+      <div style="display:flex;align-items:center;gap:16px;width:100%">
+        <input class="sess-input" id="perf-name-input" placeholder="performance name…" style="width:160px" oninput="state.perfName=this.value">
+        <input class="sess-input sess-input-note" id="perf-note-input" placeholder="intention note (optional)…" oninput="state.perfNote=this.value">
+        <button class="sess-begin-btn" onclick="beginPerformance()">begin performance</button>
+        <button class="sess-log-btn" id="idle-log-btn" onclick="showLog()" style="display:none;margin-left:8px">log</button>
+      </div>
+    </div>
+    <div id="sess-active" style="display:none;width:100%;display:none;align-items:center;gap:16px">
+      <div class="sess-name" id="sess-name-display"></div>
+      <div class="sess-status" id="sess-status-display"></div>
+      <div class="sess-note-display" id="sess-note-display"></div>
+      <div class="sess-right">
+        <button class="sess-log-btn" onclick="showLog()">log</button>
+        <button class="sess-log-btn" onclick="showJournal()">◈ journal</button>
+        <button class="sess-ctrl-btn" id="sess-pause-btn" onclick="pauseSession()">pause</button>
+        <button class="sess-ctrl-btn resume" id="sess-resume-btn" style="display:none" onclick="resumeSession()">resume</button>
+        <button class="sess-ctrl-btn" onclick="endPerformance()">end</button>
+      </div>
+    </div>
+    <div id="sess-note-row" style="display:none;padding:6px 30px 8px;border-top:1px solid #141414">
+      <textarea id="sess-note-input" placeholder="⊙ session note (saved on pause / end)…" rows="1"
+        style="width:100%;background:none;border:none;outline:none;resize:none;color:#9a9088;font-family:'Courier New',monospace;font-size:13px;line-height:1.7;padding:0;-webkit-font-smoothing:antialiased;overflow:hidden"
+        oninput="state.sessionNoteText=this.value;this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+    </div>
+  </div>
+
+  <!-- Sheet grid -->
+  <div id="grid">
+    <!-- Language, Image, Process columns rendered by JS -->
+    <div id="col-language" class="sheet-col"></div>
+    <div id="col-image" class="sheet-col"></div>
+    <div id="col-process" class="sheet-col"></div>
+
+    <!-- Score column -->
+    <div class="score-col">
+      <div class="score-header">
+        <div>
+          <div class="score-header-label" id="score-header-label" style="color:#c8a97e">SCORE</div>
+          <div class="score-header-sub" id="score-header-sub">composite directive output</div>
+        </div>
+        <div class="cast-count" id="cast-count"></div>
+      </div>
+
+      <!-- Dice display -->
+      <div id="dice-display">
+        <div class="dice-label">2d8 — I CHING CAST</div>
+        <div class="dice-row">
+          <div class="die-wrap" id="die1-wrap">
+            <svg width="60" height="60" viewBox="0 0 60 60" id="die1-svg"></svg>
+            <div class="die-element-label" id="die1-label">DIE I</div>
+          </div>
+          <div style="color:#686868;font-size:14px;padding-bottom:14px">·</div>
+          <div class="die-wrap" id="die2-wrap">
+            <svg width="60" height="60" viewBox="0 0 60 60" id="die2-svg"></svg>
+            <div class="die-element-label" id="die2-label">DIE II</div>
+          </div>
+        </div>
+        <div class="hex-display" id="hex-display" style="display:none"></div>
+        <div class="no-throw" id="no-throw">— no throw yet —</div>
+      </div>
+
+      <!-- Image bank — display only; all management in pool modal -->
+      <div id="bank-wrap">
+        <div class="bank-loaded" id="bank-loaded">
+          <div class="bank-loaded-header">
+            <div class="bank-loaded-title">V. IMAGE BANK</div>
+            <div class="bank-btns">
+              <span class="bank-counter" id="bank-counter"></span>
+              <button class="bank-btn hide-btn" id="bank-toggle-counter" onclick="toggleCounter()">hide</button>
+              <button class="bank-btn" onclick="showPool()" id="bank-manage-btn">manage</button>
+            </div>
+          </div>
+          <div id="bank-content"></div>
+        </div>
+      </div>
+
+      <!-- Score body -->
+      <div id="score-body">
+        <div class="score-empty" id="score-empty">— cast the dice to generate a score —</div>
+        <div id="score-card" style="display:none"></div>
+      </div>
+
+      <!-- Previous casts -->
+      <div id="prev-casts" style="display:none">
+        <div class="prev-label">PREVIOUS CASTS</div>
+        <div id="prev-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div id="controls">
+    <button class="cast-btn" id="cast-btn" onclick="castDice()">cast dice</button>
+
+    <div class="physical-wrap">
+      <div class="physical-label">PHYSICAL<br>THROW</div>
+      <div class="die-input-wrap">
+        <div style="position:relative;width:44px;height:44px">
+          <svg width="44" height="44" viewBox="0 0 44 44" style="position:absolute;inset:0;pointer-events:none" id="input-die1-svg"></svg>
+          <input type="number" min="1" max="8" class="die-input" id="input-d1" placeholder="·" oninput="clampDie(this,'d1')">
+        </div>
+        <div class="die-input-sublabel" id="input-d1-label" style="color:#686868">·<br>upper</div>
+      </div>
+      <div class="die-input-wrap">
+        <div style="position:relative;width:44px;height:44px">
+          <svg width="44" height="44" viewBox="0 0 44 44" style="position:absolute;inset:0;pointer-events:none" id="input-die2-svg"></svg>
+          <input type="number" min="1" max="8" class="die-input" id="input-d2" placeholder="·" oninput="clampDie(this,'d2')">
+        </div>
+        <div class="die-input-sublabel" id="input-d2-label" style="color:#686868">·<br>lower</div>
+      </div>
+      <button class="enter-btn" id="enter-btn" onclick="castPhysical()">enter</button>
+    </div>
+
+    <div class="active-label" id="active-label">active: language + image + process<br>click headers to toggle</div>
+
+    <div class="right-btns">
+      <button class="present-btn" id="present-btn" style="display:none" onclick="enterPresent()">present</button>
+      <button class="present-btn" id="present-score-btn" style="display:none;margin-left:8px" onclick="enterPresentScore()">score</button>
+      <button class="copy-btn" id="copy-btn" style="display:none" onclick="copyScore()">copy score</button>
+    </div>
+  </div>
+</div>
+
+<!-- Journal panel -->
+<div id="journal-overlay" style="position:fixed;inset:0;background:#030303cc;z-index:100;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+  <div style="width:min(560px,92vw);background:#0d0d0b;border:1px solid #2a2820;box-shadow:0 8px 48px #00000088,0 0 0 1px #c8a97e11;font-family:'Courier New',monospace;display:flex;flex-direction:column">
+    <div style="padding:16px 22px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:13px;color:#777;letter-spacing:0.22em">◈ JOURNAL ENTRY</div>
+      <button onclick="hideJournal()" style="background:none;border:none;color:#7c7c7c;font-family:'Courier New',monospace;font-size:15px;letter-spacing:0.2em;cursor:pointer"
+        onmouseover="this.style.color='#c8a97e'" onmouseout="this.style.color='#7c7c7c'">close ×</button>
+    </div>
+    <textarea id="journal-text" placeholder="write freely — each save adds a ◈ entry to the log; the next thought starts fresh" oninput="state.journalDraft=this.value"
+      style="flex:1;min-height:160px;background:none;border:none;outline:none;resize:none;color:#b0a898;font-family:'Courier New',monospace;font-size:14px;line-height:1.9;padding:18px 22px;-webkit-font-smoothing:antialiased"></textarea>
+    <div style="padding:12px 22px;border-top:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center">
+      <button onclick="discardJournalDraft()" style="padding:6px 16px;background:transparent;border:1px solid #3a3a3a;color:#8a6a5a;font-family:'Courier New',monospace;font-size:13px;letter-spacing:0.15em;cursor:pointer;transition:all 0.2s"
+        onmouseover="this.style.color='#c88a7e';this.style.borderColor='#c88a7e44'"
+        onmouseout="this.style.color='#8a6a5a';this.style.borderColor='#3a3a3a'">clear</button>
+      <button onclick="saveJournalEntry()" style="padding:6px 18px;background:transparent;border:1px solid #3a3a3a;color:#777;font-family:'Courier New',monospace;font-size:13px;letter-spacing:0.2em;cursor:pointer;transition:all 0.2s"
+        onmouseover="this.style.color='#c8a97e';this.style.borderColor='#c8a97e44'"
+        onmouseout="this.style.color='#777';this.style.borderColor='#3a3a3a'">save to log</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pool modal — full image bank management surface -->
+<div id="pool-overlay">
+  <div id="pool-panel">
+    <div id="pool-header">
+      <div>
+        <div id="pool-title">V. IMAGE BANK</div>
+        <div id="pool-sub"></div>
+      </div>
+      <button class="exit-btn" onclick="hidePool()">close ×</button>
+    </div>
+    <div id="pool-toolbar">
+      <div class="pool-tb-group">
+        <label class="bank-browse-btn">
+          add files
+          <input type="file" accept="image/*" multiple style="display:none" id="bank-file-input">
+        </label>
+        <label class="bank-browse-btn">
+          add folder
+          <input type="file" accept="image/*" multiple webkitdirectory style="display:none" id="bank-folder-input">
+        </label>
+      </div>
+      <div class="pool-tb-group" id="pool-order-group">
+        <span class="bank-policy-label">order on commit:</span>
+        <button class="bank-policy-btn active" id="policy-shuffle" onclick="setBankPolicy('shuffle')">shuffle</button>
+        <button class="bank-policy-btn" id="policy-load" onclick="setBankPolicy('load')">added</button>
+        <button class="bank-policy-btn" id="policy-filename" onclick="setBankPolicy('filename')">name</button>
+        <button class="bank-policy-btn" id="policy-date" onclick="setBankPolicy('date')">date</button>
+      </div>
+      <div class="pool-tb-group" id="pool-commit-group">
+        <button class="bank-commit-btn" id="bank-commit-btn" onclick="commitBank()" disabled>done loading</button>
+      </div>
+      <div class="pool-tb-group" id="pool-manage-group">
+        <button class="bank-btn" onclick="addMoreImages()">add more</button>
+        <button class="bank-btn" onclick="reshuffleBank()">reshuffle</button>
+        <button class="bank-btn" onclick="clearBank()">clear bank</button>
+      </div>
+    </div>
+    <div id="pool-grid"></div>
+  </div>
+</div>
+
+<!-- Reusable custom modal -->
+<div id="modal-overlay" style="position:fixed;inset:0;background:#030303cc;z-index:120;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+  <div style="width:min(520px,92vw);background:#0d0d0b;border:1px solid #2a2820;box-shadow:0 8px 48px #00000088,0 0 0 1px #c8a97e11;font-family:'Courier New',monospace;display:flex;flex-direction:column">
+    <div style="padding:16px 24px;border-bottom:1px solid #1a1a1a">
+      <div id="modal-title" style="font-size:13px;color:#c8a97e;letter-spacing:0.22em"></div>
+    </div>
+    <div id="modal-message" style="padding:22px 24px;color:#b0a898;font-size:14px;line-height:1.8;-webkit-font-smoothing:antialiased;white-space:pre-wrap"></div>
+    <div id="modal-buttons" style="padding:14px 24px;border-top:1px solid #1a1a1a;display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap"></div>
+  </div>
+</div>
+
+<!-- Log panel -->
+<div id="log-overlay">
+  <div id="log-panel">
+    <div id="log-header">
+      <div id="log-title">PERFORMANCE LOG</div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <button class="log-download-btn" onclick="downloadLog()">download .txt</button>
+        <button class="log-download-btn" onclick="downloadJournal()">journal only</button>
+        <button class="log-download-btn" onclick="exportPerformance()">export .json</button>
+        <label class="log-download-btn" style="display:inline-block;cursor:pointer">import…<input type="file" accept=".json,.txt" style="display:none" id="import-file-input"></label>
+        <button class="log-close-btn" onclick="hideLog()">close ×</button>
+      </div>
+    </div>
+    <div id="log-body">— no casts recorded yet —</div>
+    <div id="log-nav" style="position:absolute;right:16px;bottom:14px;display:flex;flex-direction:column;gap:6px">
+      <button class="scroll-nav-btn" onclick="document.getElementById('log-body').scrollTo({top:0,behavior:'smooth'})" title="to top">↑</button>
+      <button class="scroll-nav-btn" onclick="document.getElementById('log-body').scrollTo({top:document.getElementById('log-body').scrollHeight,behavior:'smooth'})" title="to end">↓</button>
+    </div>
+  </div>
+</div>
+
+<!-- Present overlay -->
+<div id="present-overlay">
+  <div id="present-header">
+    <div style="display:flex;align-items:baseline">
+      <div id="present-title">FONTANA MIX</div>
+      <div id="present-hex"></div>
+    </div>
+    <button class="exit-btn" onclick="exitPresent()">exit present</button>
+  </div>
+  <div id="present-body">
+    <div class="present-sheet" id="ps-language"></div>
+    <div class="present-sheet" id="ps-image"></div>
+    <div class="present-sheet" id="ps-process"></div>
+  </div>
+</div>
+
+<div id="present-score-overlay">
+  <div id="ps-panel">
+    <div id="ps-header">
+      <div style="display:flex;align-items:baseline">
+        <div id="ps-title">FONTANA MIX</div>
+        <div id="ps-hex-info"></div>
+      </div>
+      <button class="exit-btn" onclick="exitPresentScore()">close ×</button>
+    </div>
+    <div id="ps-body"></div>
+  </div>
+</div>
+
+<!-- About overlay -->
+<div id="about-overlay">
+  <div id="about-panel">
+    <button class="about-close" onclick="hideAbout()">close ×</button>
+    <div class="about-title">FONTANA MIX 2026</div>
+    <div class="about-subtitle">neural collage score generator — after J. Cage (1958)</div>
+
+    <div class="about-section">
+      <div style="margin-bottom:28px;padding-bottom:22px;border-bottom:1px solid #1e1e1e">
+        <div style="font-size:15px;color:#9a9088;line-height:1.8;-webkit-font-smoothing:antialiased">Developed by <span style="color:#c8a97e">SK Choi</span> in dialogue with <span style="color:#c8a97e">Anthropic's Claude</span> as a cognitive autoethnographic study of human-AI co-creation.</div>
+        <div style="font-size:12px;color:#484848;letter-spacing:0.1em;margin-top:8px">after John Cage, <em>Fontana Mix</em> (1958) · project initiated Spring 2026 · version <span id="about-version-tag"></span></div>
+      </div>
+
+      <div class="about-section-title">what this is</div>
+      <div class="about-section-body">A chance-operations score generator for human-AI co-creative practice — specifically for iterative dialogue between autographic gesture and AI image generation (Stable Diffusion image-to-image workflows). Each cast of two eight-sided dice produces a composite score across three sheets: theoretical-affective vocabulary (Language), operational image directives (Image), and temporal-durational instructions (Process). The score is not a prescription. It is a field that the artist enters and completes through practice.</div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-title">the three sheets</div>
+      <div class="about-section-body">The instrument draws from three vocabulary sheets on each cast. Each sheet column has a coloured dot beside its header — this dot indicates the sheet is active and can be toggled on or off by clicking the header. Toggling a sheet off excludes it from the cast entirely: no items are selected from it, it does not contribute to the score card, and its mark field dims. This allows you to work with any combination of one, two, or all three sheets — for example, using only Language and Process without Image directives, or casting from a single sheet for a more focused score.<br><br>
+      The dot behaves differently depending on when you toggle. <strong style="color:#9a9088">Before a cast:</strong> toggling a sheet off dims the entire column — the dot darkens, the mark field fades, all items go dark. The sheet reads as simply inactive. <strong style="color:#9a9088">After a cast (settled):</strong> toggling a sheet off dims the column, but the activated items were already illuminated by the cast. They dim back toward dormant, and the dot dims — but there is a residual warmth from the settled state that makes the dimming look different from a pre-cast toggle. This is correct: the two states are genuinely different. In both cases, the next cast will exclude a toggled-off sheet regardless of when it was toggled.<br><br>
+      The Score column (IV) has no dot because it has no toggle — it is the output of the cast, not a pool to draw from.<br><br>
+        <span class="about-em">I. Language</span> — Theoretical and affective fragments drawn directly from the research framework of neural collage practice: Deleuzian vocabulary (intensive difference), embodied cognition (Varela), and terms coined within the practice itself (refound object, alreadymade, the almost-known). Three items are activated per cast. They function as conceptual-affective orientation for the session — not as tasks.<br><br>
+        <span class="about-em">II. Image</span> — Operational directives derived inductively from actual studio practice: real procedural moves in the iterative exchange between hand and machine. Three items are activated per cast. The compositional diagram (placement principle, rotation, scale) is an additional spatial score generated from the same throw. It is a suggestion. Human obstinacy prevails.<br><br>
+        <span class="about-em">III. Process</span> — Temporal and durational scores drawing on Cage's process logic and autoethnographic observation of how the human-AI session unfolds in time. Two items are activated per cast. They govern the session as a whole: sequencing, duration, the decision of when to stop.
+      </div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-title">the generated mark fields</div>
+      <div class="about-section-body">Each of the three sheet columns is headed by a generated field of marks — lines, arcs, curves, and rectangles. These are not decorative. They are produced by the same deterministic seed as the cast: the same sequence of numbers that selects the vocabulary items also determines the position, weight, and opacity of every mark in the field. The visual composition and the textual score are one event seen in two registers simultaneously.<br><br>
+      The marks are causally related to the cast but not symbolically related to the I Ching. There is no iconographic correspondence between a hexagram and a particular mark type or configuration — the relationship is structural, not interpretive. Think of it as the cast expressed spatially rather than linguistically: the same throw, read differently.<br><br>
+      When a sheet is inactive (toggled off by clicking its header), its mark field fades. When active, it illuminates at full opacity. The mark field is the sheet's visual identity — it changes with every cast, making each score visually distinct as well as textually distinct. After a cast, dormant (unselected) vocabulary items dim back and the mark field settles — the score asserts itself against the pool from which it was drawn.</div>
+
+      <div class="about-section-title" style="margin-top:28px">the dice and the I Ching</div>
+      <div class="about-section-body">Two eight-sided dice are cast — digitally or entered from physical dice. Each die face maps to one of the eight I Ching trigrams (☰ Heaven through ☷ Earth). Their combination yields one of 64 hexagrams — the complete set of the I Ching. The hexagram number deterministically seeds all score selections: the same throw always produces the same score, making results citable and reproducible as research data. This follows John Cage's use of the I Ching from the early 1950s — not as randomness, but as a fixed yet impersonal mapping that displaces personal preference without abandoning structure.</div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-title">relationship to Cage's Fontana Mix (1958)</div>
+      <div class="about-section-body">Structurally referential, not directly derived. Cage's original consists of ten transparent sheets — carrying lines and points — overlaid in any combination, with the performer reading intersections as instructions. This instrument preserves three elements from that logic: multiple simultaneous sheets (Language, Image, Process are overlaid, not sequential); chance operations as compositional method; and the score as a generative field rather than a fixed instruction set. It departs from Cage's graphic overlay method and the open indeterminacy of performer interpretation — the vocabulary here is fixed, the selections deterministic, the directives textual rather than graphical.</div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-title">the open work</div>
+      <div class="about-section-body">Following Umberto Eco's <em>Opera Aperta</em> (1962), this score is conceived as an open work: a structured field of possibility that the artist completes through the act of practice. The score does not determine the work. It opens a space in which the work becomes possible. Each of the 64 hexagrams is a different opening of that space.</div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-title">image bank (V)</div>
+      <div class="about-section-body">An optional pool of source images that the cast draws from — one image surfacing per throw alongside the score directives, shown in full. The bank is managed through a single panel opened with <em>manage</em> (or <em>load images</em> when empty).<br><br>
+      <strong style="color:#9a9088">Loading is accretive.</strong> Add files or whole folders, from any number of sources, in any number of passes — images accumulate in a staging area rather than replacing what came before. Review the staged thumbnails, remove any you don't want, then <em>done loading</em> commits them. You can re-open the manager and add more at any point during a performance; new images integrate with the images not yet drawn.<br><br>
+      <strong style="color:#9a9088">Order on commit.</strong> Choose how committed images are sequenced: <em>shuffle</em> (chance, the default), <em>added</em> (the order loaded — browser delivery order, usually filename), <em>name</em> (filename, sorted within each source folder), or <em>date</em> (capture date, for documentary sequences). Ordering applies only to images not yet drawn; it never disturbs the record of what has been used.<br><br>
+      <strong style="color:#9a9088">Each image is a single identity with its own history.</strong> An image is counted as <em>used</em> only if it was the current image at the moment the next cast was thrown — the throw is the point of commitment. Before that, you may change the current image freely (a form of preference-browsing): open the manager and click any image to place it in the current cast. These provisional changes are recorded in the log but not counted as use. You may also deliberately re-use an already-used image — placing one image across a span of casts to localise a region of the developing work. Re-use is intended, recorded, and never duplicates the image; its use-count (×N) simply rises.<br><br>
+      Every draw, override, and re-use is written to the performance log as a timestamped, tagged event, so the full negotiation between the chance sequence and the artist's obstinacy becomes part of the record — the trace where the tacit modality of process becomes visible. Duplicate files (identical name, size, and date) are detected on load and offered for removal; genuinely different images sharing a name are kept and marked <em>(alt)</em>.</div>
+
+      <div class="about-section-title" style="margin-top:28px">the image bank and indeterminacy</div>
+      <div class="about-section-body">The bank does not contradict the instrument's chance-operational ground — it completes it. An instrument that permitted only obedience to the draw would be a stricter oracle but a poorer research instrument: it could not record the artist working with, around, and against the sequence. The chance sequence is the ground; the artist's moves with and against it are the figure. Both are recorded — the trace where the tacit modality of process becomes visible.</div>
+      <div class="about-section-title" style="margin-top:28px">bank controls</div>
+      <div class="about-section-body"><em>manage</em> opens the pool panel — the single surface for loading, ordering, culling, override, and re-use. <em>hide / count</em> toggles the "images remaining" counter (useful during presentation). Inside the manager: <em>add files / add folder</em> stage more images; <em>reshuffle</em> re-randomises only the images not yet drawn (used images keep their place and history, and are never lost); <em>clear bank</em> unloads everything and empties the library. Reshuffle, commit, removal, override, and re-use are each recorded in the performance log.<br><br>
+      Images are held in memory only — closing and reopening the file requires reloading them. The path of each image (its folder-relative location at load time) is captured with the record so images can be located again later; the performance log and session record are preserved through the auto-download on ending a performance.</div>
+    </div>
+
+    <div class="about-section">
+      <div class="about-section-title">the SD prompt directive</div>
+      <div class="about-section-body">The SD Prompt Directive shown at the bottom of the score card is a condensed composite drawn from the cast selections — a subset of the subset. One item is selected at random from each sheet's activated pool (one from the Language selections, one from the Image selections, one from the Process selections), joined by em-dashes with a closing period. Unlike the score itself — which is fully determined by the throw and always reproducible — the prompt selection is genuinely open: the same hexagram cast twice will produce the same score directives but potentially a different prompt each time. Up to 18 different prompts are possible from any single cast (3 Language × 3 Image × 2 Process selections). The prompt is not the score — it is a variable secondary layer, a way of speaking the score to the machine. The score is the oracle's word; the prompt is how you choose to address the algorithm with it. It can be ignored, modified, or used as written. The word "algorithm" may be read as referring to any generative transformation process — not exclusively Stable Diffusion.</div>
+
+      <div class="about-section-title" style="margin-top:28px">score card ordering</div>
+      <div class="about-section-body">The score card displays selected items in the order they were drawn by the seeded RNG — the oracle's sequence, which is the sequence of the cast as a temporal event. The vocabulary pools in the three sheet columns display items in their fixed structural order (top to bottom as written). These will differ. The oracle's sequence and the structural sequence are two different readings of the same cast. A toggle between the two views is planned for a future version.</div>
+
+      <div class="about-section-title" style="margin-top:28px">future development</div>
+      <div class="about-section-body">Each sheet is planned for expansion to exactly 64 items — one per hexagram — enabling direct indexical mapping (hexagram number → specific item) and structural coherence with the I Ching's complete 64-hexagram system. At present, items are selected by seeded shuffle from each sheet's vocabulary. The physical dice entry preserves the talisman quality of the throw as the primary event; the tool reads the oracle.</div>
+    </div>
+
+    <div class="about-footer">
+      SK Choi / Anthropic Claude · cognitive autoethnographic study of human-AI co-creation<br>
+      developed as part of ongoing research into neural collage practice<br>
+      click ⛶ fullscreen in the header for fullscreen instructions
+    </div>
+    <div style="text-align:right;padding:12px 44px 24px">
+      <button id="back-to-top" onclick="document.getElementById('about-panel').scrollTo({top:0,behavior:'smooth'})">↑ back to top</button>
+    </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Data ────────────────────────────────────────────────────────────────────
+
+const SHEETS = {
+  language: { label:"I. LANGUAGE", sublabel:"theoretical / affective fragments", color:"#c8a97e", pick:3, items:[
+    "tacit ambiguity","pre-articulate state","intensive difference","distributed cognition","mode collapse","embodied intuition","convergent pattern","divergent possibility","anthropomorphic conceit","seduction of the tool","refound object","alreadymade","the uncanny return","recursive convergence","gestural residue","surface memory","opacity of intention","refusal to resolve","surrender to indeterminacy","what the hand knows","the almost-known","cultural artifact","imaginative capacity","pre-conceptual gesture"
+  ]},
+  image: { label:"II. IMAGE", sublabel:"operation / material / composition", color:"#7e9ec8", pick:3, items:[
+    "dissolve edges","amplify grain","invert palette","fragment and redistribute","mirror horizontal axis","erode toward center","accumulate layers","resist resolution","introduce noise","hold one gesture fixed","bleed into background","obscure the known mark","recover the underpainting","interrupt the algorithm return","collide two opposing gestures","allow the drift","deny the figure","push toward abstraction","pull back to mark","overlay at low opacity","feed the residue back","let the error stand","photograph the process"
+  ]},
+  process: { label:"III. PROCESS", sublabel:"score / directive /<br>duration", color:"#9ec87e", pick:2, items:[
+    "begin with a single horizontal mark","withhold for three iterations before feeding","surrender one element to the algorithm entirely","introduce a contradiction between gesture and prompt","hold the ambiguity — do not resolve","respond only to what was not intended","reject the first return; repeat the gesture","use the algorithm output as ground, not figure","work in silence for the first pass","allow one chance operation to override","document the feeling before the image","pause at the moment of recognition","continue past the point of comfort","end when the ambiguity becomes unbearable","begin again from the residue","let chance determine the palette","duration: until the hand disagrees with the algorithm"
+  ]}
+};
+
+const DESIGN_PRINCIPLES = [
+  {name:"rule of thirds — upper left node",xHint:0.33,yHint:0.33},{name:"rule of thirds — upper right node",xHint:0.67,yHint:0.33},{name:"rule of thirds — lower left node",xHint:0.33,yHint:0.67},{name:"rule of thirds — lower right node",xHint:0.67,yHint:0.67},{name:"golden ratio — primary zone",xHint:0.618,yHint:0.382},{name:"golden ratio — secondary zone",xHint:0.382,yHint:0.618},{name:"radical decentering — far edge",xHint:null,yHint:null},{name:"dead centre — maximum symmetry",xHint:0.5,yHint:0.5},{name:"diagonal thrust — upper to lower",xHint:null,yHint:null},{name:"visual weight at periphery",xHint:null,yHint:null},{name:"compressed — near top edge",xHint:null,yHint:0.12},{name:"compressed — near bottom edge",xHint:null,yHint:0.88},{name:"figure-ground tension — ambiguous",xHint:null,yHint:null},{name:"off-balance — resist correction",xHint:null,yHint:null},{name:"Gestalt closure — incomplete form",xHint:null,yHint:null}
+];
+const ROTATIONS = [
+  {deg:0,label:"0° — horizontal rest"},{deg:7,label:"7° — slight unease"},{deg:15,label:"15° — perceptible tilt"},{deg:22,label:"22° — moderate diagonal"},{deg:30,label:"30° — strong diagonal"},{deg:45,label:"45° — maximum diagonal"},{deg:-7,label:"−7° — contrary unease"},{deg:-15,label:"−15° — contrary tilt"},{deg:-22,label:"−22° — contrary diagonal"},{deg:-30,label:"−30° — contrary strong diagonal"},{deg:-45,label:"−45° — contrary maximum diagonal"},{deg:90,label:"90° — vertical axis"}
+];
+// Scale directives. `kind` drives representational rendering (r93):
+//  metric → box resizes to `area` fraction of the plane (linear factor = sqrt(area/0.5),
+//           mid-weight as the 0.5 reference); bleed → oversized box clipped at the frame;
+//           fragment → box replaced by (n-discard) small fragment rects (n, discard seeded).
+// `label` is the display text (what shows in caption, log, copy, present views).
+const SCALE_DIRECTIVES = [
+  {label:"dominant — fill 70–80% of plane", kind:"metric", area:0.75},
+  {label:"mid-weight — fill 40–60% of plane", kind:"metric", area:0.50},
+  {label:"minor — fill 15–30% of plane", kind:"metric", area:0.22},
+  {label:"fragment", kind:"fragment"},
+  {label:"bleed — exceed frame on one side", kind:"bleed", area:1.15}
+];
+const TRIGRAMS = [{sym:"☰",name:"Qian",element:"Heaven"},{sym:"☱",name:"Dui",element:"Lake"},{sym:"☲",name:"Li",element:"Fire"},{sym:"☳",name:"Zhen",element:"Thunder"},{sym:"☴",name:"Xun",element:"Wind"},{sym:"☵",name:"Kan",element:"Water"},{sym:"☶",name:"Gen",element:"Mountain"},{sym:"☷",name:"Kun",element:"Earth"}];
+// King Wen sequence lookup [die1][die2] -> traditional hexagram number
+const KING_WEN = {
+  1:[1,10,13,25,44,6,33,12],
+  2:[19,58,49,17,28,47,31,45],
+  3:[14,38,30,21,50,64,56,35],
+  4:[34,54,55,51,32,40,62,16],
+  5:[43,61,37,42,57,59,53,20],
+  6:[5,60,63,3,48,29,39,8],
+  7:[26,41,22,27,18,4,52,23],
+  8:[11,45,36,24,46,7,15,2]
+};
+// Wilhelm/Baynes hexagram names in King Wen order (index 0 = hexagram 1)
+const HEXAGRAM_NAMES = [
+  "The Creative","The Receptive","Difficulty at the Beginning","Youthful Folly",
+  "Waiting","Conflict","The Army","Holding Together",
+  "Small Taming","Treading","Peace","Standstill",
+  "Fellowship","Great Possession","Modesty","Enthusiasm",
+  "Following","Work on the Spoiled","Approach","Contemplation",
+  "Biting Through","Grace","Splitting Apart","Return",
+  "Innocence","Great Taming","Nourishment","Great Preponderance",
+  "The Abysmal","The Clinging","Influence","Duration",
+  "Retreat","Great Power","Progress","Darkening of the Light",
+  "The Family","Opposition","Obstruction","Deliverance",
+  "Decrease","Increase","Breakthrough","Coming to Meet",
+  "Gathering Together","Pushing Upward","Oppression","The Well",
+  "Revolution","The Caldron","The Arousing","Keeping Still",
+  "Development","The Marrying Maiden","Abundance","The Wanderer",
+  "The Gentle","The Joyous","Dispersion","Limitation",
+  "Inner Truth","Small Preponderance","After Completion","Before Completion"
+];
+const hexGlyph = n => String.fromCodePoint(0x4DC0 + ((n-1) % 64));
+
+// ── State ───────────────────────────────────────────────────────────────────
+
+let state = {
+  activeSheets: {language:true, image:true, process:true},
+  score: null, castIndex: 0, casting: false, settled: false,
+  seeds: [42,137,291], history: [],
+  die1: null, die2: null, hexNum: null,
+  manualD1: '', manualD2: '',
+  showCounter: true, isDragOver: false,
+  // ── Image bank: LIBRARY MODEL ──
+  // Each image exists exactly once, with stable identity and its own use-history.
+  // images: master set. Each: {id, name, url, size, lastModified, path, source, history:[castIndex...]}
+  // newQueue: ordered array of image ids not yet ratified-as-used (shuffle/sort reorders only this)
+  // currentDrawId: image id in the drawn slot for the in-progress cast (provisional until next throw ratifies)
+  // "used" = history.length > 0 ; "current" = id === currentDrawId ; "new" = id in newQueue
+  bankImagesLib: [],       // master set (library)
+  newQueue: [],            // ids not yet ratified-as-used, in draw order
+  currentDrawId: null,     // provisional current image for the in-progress cast
+  // Image bank staging (pre-commit)
+  bankStaging: [], bankStaged: false, bankOrderPolicy: 'shuffle', bankSourceCount: 0,
+  stagingWarnShown: false, // one-time advisory when casting with uncommitted staged images
+  bankImgSeq: 0,           // monotonic id source for image identities
+  // Session / performance
+  perf: null, perfName: '', perfNote: '',
+  sessionStatus: 'idle', elapsed: 0,
+  // Reflection
+  castNote: '', castNoteOpen: false,
+  sessionNoteText: '',
+  journalDraft: '', // in-progress (unsaved) journal thought, preserved across close/reopen
+  // UI state
+  compDiagramOpen: true
+};
+
+// ── RNG ─────────────────────────────────────────────────────────────────────
+
+function mulberry32(seed) {
+  let s = seed;
+  return () => {
+    s |= 0; s = s + 0x6D2B79F5 | 0;
+    let t = Math.imul(s ^ s >>> 15, 1 | s);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function seededPick(arr, n, rng) {
+  const copy = [...arr];
+  for (let i = copy.length-1; i > 0; i--) { const j = Math.floor(rng()*(i+1)); [copy[i],copy[j]]=[copy[j],copy[i]]; }
+  return copy.slice(0,n);
+}
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+// ── SVG helpers ──────────────────────────────────────────────────────────────
+
+function octagonPoints(cx, cy, r) {
+  return Array.from({length:8},(_,i)=>{const a=(i*Math.PI)/4-Math.PI/8; return `${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`;}).join(' ');
+}
+
+function generateSheetMarks(seed) {
+  const rng = mulberry32(seed);
+  return Array.from({length:18}, () => ({
+    type: Math.floor(rng()*4), x:rng()*100, y:rng()*100, x2:rng()*100, y2:rng()*100,
+    r:0.5+rng()*3, weight:0.3+rng()*1.2, opacity:0.15+rng()*0.55, curve:rng()*30-15
+  }));
+}
+
+function renderSheetSVG(seed, color) {
+  const marks = generateSheetMarks(seed);
+  let svg = '';
+  for (const m of marks) {
+    if (m.type===0) svg += `<line x1="${m.x}" y1="${m.y}" x2="${m.x2}" y2="${m.y2}" stroke="${color}" stroke-width="${m.weight}" opacity="${m.opacity}"/>`;
+    else if (m.type===1) svg += `<circle cx="${m.x}" cy="${m.y}" r="${m.r}" fill="none" stroke="${color}" stroke-width="${m.weight*0.6}" opacity="${m.opacity}"/>`;
+    else if (m.type===2) svg += `<path d="M${m.x},${m.y} Q${(m.x+m.x2)/2+m.curve},${(m.y+m.y2)/2-m.curve} ${m.x2},${m.y2}" fill="none" stroke="${color}" stroke-width="${m.weight*0.8}" opacity="${m.opacity}"/>`;
+    else svg += `<rect x="${m.x-m.r}" y="${m.y-m.r}" width="${m.r*2}" height="${m.r*2}" fill="none" stroke="${color}" stroke-width="${m.weight*0.5}" opacity="${m.opacity}"/>`;
+  }
+  return svg;
+}
+
+function renderDieOctagon(svgEl, value, rolling) {
+  const pts = octagonPoints(30,30,27);
+  const trigram = value ? TRIGRAMS[value-1] : null;
+  let inner = '';
+  if (value && !rolling) {
+    const cx=30, cy=30, r=27;
+    const fc = ((value-1)*Math.PI/4) - Math.PI/2;
+    const a1=fc-Math.PI/8, a2=fc+Math.PI/8;
+    const x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+    const x2=cx+r*Math.cos(a2), y2=cy+r*Math.sin(a2);
+    inner += `<polygon points="${cx},${cy} ${x1},${y1} ${x2},${y2}" fill="#c8a97e" opacity="0.2"/>`;
+    inner += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#c8a97e" stroke-width="2.5" opacity="0.9"/>`;
+  }
+  if (trigram && !rolling) {
+    inner += `<text x="30" y="24" text-anchor="middle" font-size="17" fill="#c8a97e" font-family="serif" opacity="1">${trigram.sym}</text><text x="30" y="40" text-anchor="middle" font-size="7" fill="#9a8a68" font-family="'Courier New',monospace" letter-spacing="0.05em">${value}</text>`;
+  } else if (rolling) {
+    inner += `<text x="30" y="34" text-anchor="middle" font-size="10" fill="#7a6a50" font-family="monospace">·</text>`;
+  }
+  svgEl.innerHTML = `<polygon points="${pts}" fill="#0d0d0d" stroke="#c8a97e" stroke-width="1" opacity="${rolling?0.4:1}"/>${inner}`;
+}
+
+function renderInputDieOctagon(svgEl, valid, n) {
+  const pts = octagonPoints(22,22,19);
+  let edge = '';
+  if (valid && n >= 1 && n <= 8) {
+    const cx=22, cy=22, r=19;
+    const fc = ((n-1)*Math.PI/4) - Math.PI/2;
+    const a1=fc-Math.PI/8, a2=fc+Math.PI/8;
+    const x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+    const x2=cx+r*Math.cos(a2), y2=cy+r*Math.sin(a2);
+    edge = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#c8a97e" stroke-width="2.5" opacity="0.9"/>`;
+  }
+  svgEl.innerHTML = `<polygon points="${pts}" fill="${valid?'#0a0a0a':'#1a1612'}" stroke="${valid?'#c8a97e':'#aaa'}" stroke-width="${valid?1:1.5}" opacity="0.9"/>${edge}`;
+}
+
+function generateComposition(rng) {
+  const p = DESIGN_PRINCIPLES[Math.floor(rng()*DESIGN_PRINCIPLES.length)];
+  const rot = ROTATIONS[Math.floor(rng()*ROTATIONS.length)];
+  const scDir = SCALE_DIRECTIVES[Math.floor(rng()*SCALE_DIRECTIVES.length)];
+  // Build the scale spec + display label. For fragment, derive N (3–7) and discard
+  // (1 .. N-1) deterministically from the same rng, so the operation is reproducible.
+  let scaleSpec, scaleLabel;
+  if (scDir.kind === 'fragment') {
+    const n = 3 + Math.floor(rng()*5);           // 3..7 fragments
+    const discard = 1 + Math.floor(rng()*(n-1));  // 1..n-1 discarded
+    scaleSpec = { kind:'fragment', n, discard };
+    scaleLabel = `fragment — cut into ${n}, discard ${discard}`;
+  } else {
+    scaleSpec = { kind:scDir.kind, area:scDir.area };
+    scaleLabel = scDir.label;
+  }
+  const jit = () => rng()*0.08-0.04;
+  const rx = p.xHint!==null ? p.xHint+jit() : 0.08+rng()*0.84;
+  const ry = p.yHint!==null ? p.yHint+jit() : 0.08+rng()*0.84;
+  return { x:Math.max(0.05,Math.min(0.95,rx)), y:Math.max(0.05,Math.min(0.95,ry)), rotation:rot.deg, rotationLabel:rot.label, principle:p.name, scale:scaleLabel, scaleSpec };
+}
+
+function renderCompDiagram(comp, present, large) {
+  if (!comp) return `<div style="font-size:13px;color:#787878;font-style:italic;padding:8px 0">— cast to score composition —</div>`;
+  const W=large?480:present?220:240, H=large?356:present?164:178, col="#7e9ec8";
+  const cx=comp.x*W, cy=comp.y*H;
+  // Base box dimensions are the MID-WEIGHT (≈50% area) reference. r93: the box now
+  // resizes to the scored scale. Linear factor = sqrt(area / 0.5); fragment draws
+  // small pieces instead of one box; bleed oversizes and is clipped to the frame.
+  const bw0=large?140:present?60:70, bh0=large?104:present?44:52;
+  const spec = comp.scaleSpec || { kind:'metric', area:0.5 };
+  const sw = large?2:1.2, swThin = large?1.2:0.6, dash = large?'6,4':'3,2';
+  const uid = 'cf'+Math.random().toString(36).slice(2,8); // unique clip id per render
+  const rectWithCross = (w,h,fillOp) => `<rect x="${-w/2}" y="${-h/2}" width="${w}" height="${h}" fill="${col}${fillOp||'20'}" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${dash}"/><line x1="${-w/2}" y1="0" x2="${w/2}" y2="0" stroke="${col}" stroke-width="${swThin}" opacity="0.6"/><line x1="0" y1="${-h/2}" x2="0" y2="${h/2}" stroke="${col}" stroke-width="${swThin}" opacity="0.6"/>`;
+  let shape, clipDef = '';
+  if (spec.kind === 'fragment') {
+    // Cut a mid-weight box into n cells, keep (n-discard), scatter them slightly.
+    const n = spec.n || 5, discard = spec.discard || 1, keep = Math.max(1, n - discard);
+    const cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n/cols);
+    const fw = bw0/cols, fh = bh0/rows;
+    let r = mulberry32(((n*131)+(discard*977))>>>0);
+    // choose which cells to keep
+    const cells = Array.from({length:n},(_,i)=>i);
+    for (let i=cells.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[cells[i],cells[j]]=[cells[j],cells[i]];}
+    const kept = cells.slice(0,keep);
+    const pieces = kept.map(ci=>{
+      const gx=(ci%cols), gy=Math.floor(ci/cols);
+      const px = -bw0/2 + fw*gx + fw/2 + (r()*fw*0.3 - fw*0.15);
+      const py = -bh0/2 + fh*gy + fh/2 + (r()*fh*0.3 - fh*0.15);
+      const pr = (r()*24-12);
+      return `<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) rotate(${pr.toFixed(1)})"><rect x="${(-fw*0.4).toFixed(1)}" y="${(-fh*0.4).toFixed(1)}" width="${(fw*0.8).toFixed(1)}" height="${(fh*0.8).toFixed(1)}" fill="${col}20" stroke="${col}" stroke-width="${swThin}"/></g>`;
+    }).join('');
+    shape = `<g transform="translate(${cx},${cy}) rotate(${comp.rotation})">${pieces}</g>`;
+  } else if (spec.kind === 'bleed') {
+    // Oversize the box and clip it to the frame — it runs off one edge.
+    const f = Math.sqrt((spec.area||1.15)/0.5);
+    const bw=bw0*f, bh=bh0*f;
+    clipDef = `<defs><clipPath id="${uid}"><rect x="0" y="0" width="${W}" height="${H}"/></clipPath></defs>`;
+    shape = `<g clip-path="url(#${uid})"><g transform="translate(${cx},${cy}) rotate(${comp.rotation})">${rectWithCross(bw,bh)}</g></g>`;
+  } else {
+    // Metric: resize to area fraction.
+    const f = Math.sqrt((spec.area||0.5)/0.5);
+    shape = `<g transform="translate(${cx},${cy}) rotate(${comp.rotation})">${rectWithCross(bw0*f,bh0*f)}</g>`;
+  }
+  const t1x=W/3,t2x=2*W/3,t1y=H/3,t2y=2*H/3;
+  const gridLines = `<line x1="${t1x}" y1="0" x2="${t1x}" y2="${H}" stroke="#2a2a2a" stroke-width="0.8"/><line x1="${t2x}" y1="0" x2="${t2x}" y2="${H}" stroke="#2a2a2a" stroke-width="0.8"/><line x1="0" y1="${t1y}" x2="${W}" y2="${t1y}" stroke="#2a2a2a" stroke-width="0.8"/><line x1="0" y1="${t2y}" x2="${W}" y2="${t2y}" stroke="#2a2a2a" stroke-width="0.8"/>`;
+  const nodes = [t1x,t2x].flatMap(x=>[t1y,t2y].map(y=>`<circle cx="${x}" cy="${y}" r="${large?5:2.5}" fill="#404040"/>`)).join('');
+  const mr = large?18:9;
+  const msw = large?1.6:0.8;
+  const mark = `<circle cx="${cx}" cy="${cy}" r="${large?7:3.5}" fill="${col}" opacity="0.9"/><line x1="${cx-mr}" y1="${cy}" x2="${cx+mr}" y2="${cy}" stroke="${col}" stroke-width="${msw}" opacity="0.7"/><line x1="${cx}" y1="${cy-mr}" x2="${cx}" y2="${cy+mr}" stroke="${col}" stroke-width="${msw}" opacity="0.7"/>`;
+  const coords = `<text x="6" y="${H-6}" font-size="${large?13:7}" fill="#686868" font-family="monospace">x ${Math.round(comp.x*100)}% · y ${Math.round(comp.y*100)}%</text>`;
+  const fs = large?'22px':'13px';
+  const rc = '#888';
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;border:1px solid #2a2a2a;background:#070707;width:100%;max-width:${W}px">${clipDef}${gridLines}${nodes}${shape}${mark}${coords}</svg><div style="margin-top:${large?16:10}px;font-size:${fs};line-height:1.9;font-family:'Courier New',monospace"><div style="color:${col}">↳ ${comp.principle}</div><div style="color:${rc}">rot ${comp.rotationLabel}</div><div style="color:${rc}">scale ${comp.scale}</div><div style="margin-top:6px;color:#686868;font-size:${large?'16px':'12px'};font-style:italic">— suggestion only. human obstinacy prevails.</div></div>`;
+}
+
+// ── Score resolution ─────────────────────────────────────────────────────────
+
+function buildPrompt(lang, img, proc) {
+  // One item selected at random from each already-selected pool —
+  // the prompt is a variable secondary extraction, not part of the fixed cast.
+  // Same hexagram, different prompt each time: a layer of open indeterminacy
+  // within the deterministic score. The score is the oracle's word;
+  // the prompt is how you choose to speak it to the machine.
+  const pick = (arr) => arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : null;
+  const parts = [];
+  const l = pick(lang); if (l) parts.push(l);
+  const i = pick(img);  if (i) parts.push(i);
+  const p = pick(proc); if (p) parts.push(p.toLowerCase());
+  return parts.join(' — ') + '.';
+}
+
+function resolveScore(d1, d2) {
+  const idx = (d1-1)*8+(d2-1);
+  const hexNum = KING_WEN[d1][d2-1]; // King Wen traditional number
+  const hexName = HEXAGRAM_NAMES[hexNum-1]; // name by King Wen number
+  const rng = mulberry32(idx * 1013904223);
+  const s = {};
+  if (state.activeSheets.language) s.language = seededPick(SHEETS.language.items, SHEETS.language.pick, rng);
+  if (state.activeSheets.image) { s.image = seededPick(SHEETS.image.items, SHEETS.image.pick, rng); s.composition = generateComposition(rng); }
+  if (state.activeSheets.process) s.process = seededPick(SHEETS.process.items, SHEETS.process.pick, rng);
+  s.prompt = buildPrompt(s.language, s.image, s.process);
+  s.die1=d1; s.die2=d2; s.hexNum=hexNum; s.hexName=hexName;
+  return s;
+}
+
+// ── Cast ────────────────────────────────────────────────────────────────────
+
+function castDice() {
+  if (state.casting) return;
+  runCast(Math.ceil(Math.random()*8), Math.ceil(Math.random()*8));
+}
+
+function castPhysical() {
+  const d1=parseInt(state.manualD1), d2=parseInt(state.manualD2);
+  if (d1>=1&&d1<=8&&d2>=1&&d2<=8) runCast(d1,d2);
+}
+
+function runCast(d1, d2) {
+  // Read-only guard: a superseded tab must not write. (Only applies once a
+  // performance is active and owned elsewhere; a blank tab before any perf is fine.)
+  if (state.perf && !amOwner) {
+    showModal('READ-ONLY WINDOW',
+      'This window is read-only — the performance is live in another tab. Casting here is disabled to protect the record.\n\nContinue in the tab that holds the live performance.',
+      [ { label: 'ok', style: 'default' } ]);
+    return;
+  }
+  // Advisory: images staged but bank not committed — likely forgot to click "done loading"
+  if (!state.bankStaged && state.bankStaging.length > 0 && !state.stagingWarnShown) {
+    state.stagingWarnShown = true;
+    showModal('IMAGES NOT YET LOADED',
+      `You have ${state.bankStaging.length} image${state.bankStaging.length!==1?'s':''} staged but the bank isn't committed yet — casts won't draw from them until you finish loading.\n\nOpen the manager to finish, or cast without images.`,
+      [
+        { label: 'cast without images', style: 'default', action: () => runCast(d1, d2) },
+        { label: 'open manager', style: 'primary', action: () => showPool() }
+      ]);
+    return;
+  }
+  state.casting=true; state.settled=false;
+  state.die1=null; state.die2=null; state.hexNum=null;
+  // Derive sheet mark seeds deterministically from the throw — same throw, same marks
+  const idx = (d1-1)*8+(d2-1);
+  const rngA = mulberry32(idx * 1013904223);
+  const rngB = mulberry32(idx * 1664525);
+  const rngC = mulberry32(idx * 22695477);
+  state.seeds = [rngA()*9999|0, rngB()*9999|0, rngC()*9999|0];
+  updateDiceDisplay();
+  updateSheetSVGs();
+  document.getElementById('cast-btn').textContent='casting…';
+  document.getElementById('cast-btn').disabled=true;
+  setTimeout(() => {
+    const s = resolveScore(d1,d2);
+    state.die1=d1; state.die2=d2; state.hexNum=s.hexNum;
+    state.score=s; state.castIndex++;
+    state.history=[{...s,castNum:state.castIndex},...state.history].slice(0,6);
+    // ── LIBRARY MODEL: ratify previous cast's provisional image, then draw fresh ──
+    // Ratify: the image that was current when THIS throw happened becomes "used"
+    // for the PREVIOUS cast (castIndex-1). This is the commitment point.
+    ratifyCurrentDraw(state.castIndex - 1);
+    // Draw fresh for the new cast from the front of newQueue (if any remain).
+    let imgName = null;
+    if (state.newQueue.length > 0) {
+      const nextId = state.newQueue.shift();
+      state.currentDrawId = nextId;
+      state.__lastAutoDrawId = nextId; // baseline for detecting override on this cast
+      const o = libImg(nextId);
+      imgName = o ? o.name : null;
+    } else {
+      state.currentDrawId = null; // bank exhausted — no auto-draw
+      state.__lastAutoDrawId = null;
+    }
+    recordCast(s, imgName);
+    state.casting=false;
+    state.castNote=''; state.castNoteOpen=false;
+    updateAll();
+    setTimeout(()=>{ state.settled=true; updateItems(); },600);
+  },800);
+}
+
+// ── Image bank ───────────────────────────────────────────────────────────────
+
+// ── Image bank — additive staging model (Stage 1) ────────────────────────────
+
+// Each staged image: {name, url, size, lastModified, source}
+// source = the load-batch index (folder or selection) it arrived in, for filename-within-source ordering
+
+function loadFiles(files) {
+  const imgs = Array.from(files).filter(f=>f.type.startsWith('image/'));
+  if (!imgs.length) return;
+  // If adding while committed, drop back into staging first: move the current
+  // newQueue (undrawn) back to staging so new images integrate with it.
+  // Used images (history.length>0) stay in the library untouched.
+  if (state.bankStaged) {
+    state.bankStaging = state.newQueue.map(id => libImg(id)).filter(Boolean).map(o => ({...o}));
+    // remove those undrawn images from the library; they'll be re-added on commit
+    const undrawnIds = new Set(state.newQueue);
+    state.bankImagesLib = state.bankImagesLib.filter(o => !undrawnIds.has(o.id) || o.history.length>0);
+    state.newQueue = [];
+    state.bankStaged = false;
+  }
+  const sourceIdx = state.bankSourceCount;
+  state.bankSourceCount++;
+  const readers = imgs.map(f=>new Promise(res=>{
+    const r=new FileReader();
+    const path = f.webkitRelativePath || f.name; // folder-relative path when available
+    r.onload=e=>res({name:f.name, url:e.target.result, size:f.size, lastModified:f.lastModified, source:sourceIdx, path});
+    r.readAsDataURL(f);
+  }));
+  Promise.all(readers).then(loaded=>{
+    const trueDupes = [];
+    const collisions = [];
+    const fresh = [];
+    loaded.forEach(img => {
+      const sameName = state.bankStaging.filter(s => baseName(s.name) === baseName(img.name));
+      if (sameName.length === 0) { fresh.push(img); return; }
+      const identical = sameName.find(s => s.size === img.size && s.lastModified === img.lastModified);
+      if (identical) { trueDupes.push(img); }
+      else { collisions.push(img); }
+    });
+    state.bankStaging.push(...fresh);
+    collisions.forEach(img => { img.name = altName(img.name); state.bankStaging.push(img); });
+    updateStagingView();
+    if (trueDupes.length) {
+      const n = trueDupes.length;
+      let msg = `${n} incoming file${n!==1?'s':''} appear identical to images already staged (same name, size, and date).\n\n`;
+      if (collisions.length) msg += `(${collisions.length} other same-name file${collisions.length!==1?'s':''} differed in size or date — kept and marked "(alt)".)\n\n`;
+      msg += `Strip the identical duplicate${n!==1?'s':''}, or keep ${n!==1?'them':'it'} anyway?`;
+      showModal('DUPLICATE IMAGES', msg, [
+        { label: n!==1?'keep them':'keep it', style: 'default', action: () => {
+            trueDupes.forEach(img => { img.name = altName(img.name); state.bankStaging.push(img); });
+            updateStagingView();
+          } },
+        { label: n!==1?'strip duplicates':'strip duplicate', style: 'primary', action: () => { updateStagingView(); } }
+      ]);
+    }
+  });
+}
+
+// ── Library helpers ──────────────────────────────────────────────────────────
+function libImg(id) { return state.bankImagesLib.find(o => o.id === id) || null; }
+function currentImg() { return state.currentDrawId != null ? libImg(state.currentDrawId) : null; }
+function isUsed(o) { return o && o.history && o.history.length > 0; }
+function useCount(o) { return o && o.history ? o.history.length : 0; }
+
+function ratifyCurrentDraw(forCastIndex) {
+  // Commit the current provisional image as USED for `forCastIndex`.
+  // Appends the cast index to the image's history (count = history.length).
+  // Called when the NEXT throw happens, or when the performance ends.
+  if (state.currentDrawId == null || forCastIndex < 1) return;
+  const o = libImg(state.currentDrawId);
+  if (!o) return;
+  o.history.push(forCastIndex);
+  recordEvent(`use-ratified → ${o.name} · cast ${forCastIndex}`, 'use-ratified');
+  // The ratified image is now "used" and leaves the newQueue permanently (it's
+  // already been shifted out on draw; ensure it isn't lingering).
+  state.newQueue = state.newQueue.filter(x => x !== o.id);
+}
+
+function baseName(name) {
+  return name.replace(/\s\((?:alt\d*|\d+)\)(\.[^.]+)?$/i, '$1').trim();
+}
+
+function altName(name) {
+  const dot = name.lastIndexOf('.');
+  const stem = dot > 0 ? name.slice(0, dot) : name;
+  const ext = dot > 0 ? name.slice(dot) : '';
+  let n = 1;
+  let candidate = `${stem} (alt)${ext}`;
+  const taken = new Set(state.bankStaging.map(s => s.name));
+  while (taken.has(candidate)) { n++; candidate = `${stem} (alt${n})${ext}`; }
+  return candidate;
+}
+
+function orderStaged(images, policy) {
+  const arr = images.slice();
+  if (policy === 'shuffle') return shuffleArray(arr);
+  if (policy === 'load') return arr;
+  if (policy === 'filename') {
+    return arr.sort((a,b) => {
+      if (a.source !== b.source) return a.source - b.source;
+      return a.name.localeCompare(b.name, undefined, {numeric:true, sensitivity:'base'});
+    });
+  }
+  if (policy === 'date') {
+    return arr.sort((a,b) => (a.lastModified||0) - (b.lastModified||0));
+  }
+  return arr;
+}
+
+function commitBank() {
+  if (!state.bankStaging.length) return;
+  const ordered = orderStaged(state.bankStaging, state.bankOrderPolicy);
+  // Turn staged plain objects into library entries with stable ids + empty history,
+  // and append their ids to the newQueue (undrawn).
+  ordered.forEach(o => {
+    const id = ++state.bankImgSeq;
+    state.bankImagesLib.push({ id, name:o.name, url:o.url, size:o.size, lastModified:o.lastModified, path:o.path||o.name, source:o.source, history:[] });
+    state.newQueue.push(id);
+  });
+  state.bankStaging = [];
+  state.bankStaged = true;
+  state.stagingWarnShown = false;
+  recordEvent('bank-commit');
+  renderPool();
+  updateBank();
+}
+
+function setBankPolicy(policy) {
+  state.bankOrderPolicy = policy;
+  if (state.bankStaged && state.newQueue.length) {
+    // Committed: re-order the newQueue (undrawn) only. Used images are never reordered.
+    const objs = state.newQueue.map(id => libImg(id)).filter(Boolean);
+    state.newQueue = orderStaged(objs, policy).map(o => o.id);
+  } else if (!state.bankStaged && state.bankStaging.length) {
+    state.bankStaging = orderStaged(state.bankStaging, policy);
+  }
+  renderPool();
+}
+
+function addMoreImages() {
+  // Move undrawn (newQueue) back into staging; used images stay in the library.
+  loadFiles.__noop = true; // (guard flag unused; kept for clarity)
+  state.bankStaging = state.newQueue.map(id => { const o = libImg(id); return o ? {...o} : null; }).filter(Boolean);
+  const undrawnIds = new Set(state.newQueue);
+  state.bankImagesLib = state.bankImagesLib.filter(o => !undrawnIds.has(o.id) || o.history.length>0);
+  state.newQueue = [];
+  state.bankStaged = false;
+  renderPool();
+  updateBank();
+}
+
+function reshuffleBank() {
+  // Shuffle only the newQueue (undrawn). Used images are never touched or lost.
+  state.newQueue = shuffleArray(state.newQueue.slice());
+  updateBank();
+  renderPool();
+  recordEvent('bank-reshuffle');
+}
+
+// ── Pool browser + manual override (Stage 2) ─────────────────────────────────
+
+function showPool() {
+  renderPool();
+  document.getElementById('pool-overlay').style.display = 'flex';
+}
+function hidePool() { document.getElementById('pool-overlay').style.display = 'none'; }
+
+function renderPool() {
+  const grid = document.getElementById('pool-grid');
+  const sub = document.getElementById('pool-sub');
+  const committed = state.bankStaged;
+  // Toolbar mode: staging shows add/order/commit; committed shows add/order/reshuffle/clear
+  document.getElementById('pool-commit-group').style.display = committed ? 'none' : 'flex';
+  document.getElementById('pool-manage-group').style.display = committed ? 'flex' : 'none';
+  // Reflect active policy
+  ['shuffle','load','filename','date'].forEach(p=>{
+    const btn=document.getElementById('policy-'+p);
+    if (btn) btn.classList.toggle('active', state.bankOrderPolicy===p);
+  });
+
+  if (!committed) {
+    // ── Staging mode: review & cull before commit ──
+    const n = state.bankStaging.length;
+    const sources = new Set(state.bankStaging.map(i=>i.source)).size;
+    sub.textContent = n === 0
+      ? 'no images staged yet — add files or a folder to begin'
+      : `${n} image${n!==1?'s':''} staged${sources>1?` from ${sources} sources`:''} · review and remove any you don't want, then click "done loading"`;
+    document.getElementById('bank-commit-btn').disabled = (n === 0);
+    if (n === 0) { grid.innerHTML = `<div class="pool-empty">— no images staged —</div>`; return; }
+    grid.innerHTML = state.bankStaging.map((img, i) => `
+      <div class="pool-item" style="cursor:default">
+        <img src="${img.url}" alt="${img.name}">
+        <div class="pool-item-remove" onclick="removeFromStaging(${i})" title="remove from bank">×</div>
+        <div class="pool-item-name">${img.name}</div>
+      </div>`).join('');
+    return;
+  }
+
+  // ── Committed mode: manage, override, remove-new ── (LIBRARY MODEL)
+  // Display order: newQueue (undrawn, in queue order) first, then used images
+  // (history order), with the current provisional draw marked.
+  const usedImgs = state.bankImagesLib.filter(o => isUsed(o) && o.id !== state.currentDrawId);
+  const newImgs = state.newQueue.map(id => libImg(id)).filter(Boolean);
+  const curImg = currentImg();
+  const ordered = [];
+  if (curImg) ordered.push(curImg);        // current first
+  newImgs.forEach(o => { if (o.id !== state.currentDrawId) ordered.push(o); });
+  usedImgs.forEach(o => ordered.push(o));
+  const total = state.bankImagesLib.length;
+  const usedN = state.bankImagesLib.filter(isUsed).length;
+  const newN = state.newQueue.filter(id => { const o=libImg(id); return o && !isUsed(o); }).length;
+  const canOverride = state.score && curImg;
+  sub.textContent = `${total} image${total!==1?'s':''} · ${usedN} used · ${newN} unused` +
+    (canOverride ? ' · click any image to use it for this cast (used images may be re-used)' : '');
+  if (total === 0) { grid.innerHTML = `<div class="pool-empty">— bank empty —</div>`; return; }
+  grid.innerHTML = ordered.map(o => {
+    const isCurrent = o.id === state.currentDrawId;
+    const used = isUsed(o);
+    const cls = ['pool-item', used && !isCurrent ?'used':'', isCurrent?'current':''].filter(Boolean).join(' ');
+    const status = isCurrent ? 'CURRENT' : (used ? 'used' : '');
+    const count = useCount(o);
+    // Any image except the current one is a valid override target.
+    const clickable = canOverride && !isCurrent;
+    // Remove allowed only on new (undrawn) images; used images are historical.
+    const removable = !used && !isCurrent;
+    return `<div class="${cls}" ${clickable?`onclick="overrideToImageId(${o.id})"`:''} style="${clickable?'':'cursor:default'}">
+      <img src="${o.url}" alt="${o.name}">
+      ${count>0?`<div class="pool-item-count">×${count}</div>`:''}
+      ${status?`<div class="pool-item-status">${status}</div>`:''}
+      ${removable?`<div class="pool-item-remove" onclick="event.stopPropagation();removeFromPoolId(${o.id})" title="remove from bank">×</div>`:''}
+      <div class="pool-item-name">${o.name}</div>
+    </div>`;
+  }).join('');
+}
+
+function removeFromStaging(idx) {
+  state.bankStaging.splice(idx, 1);
+  renderPool();
+  updateBank();
+}
+
+function removeFromPoolId(id) {
+  // Remove a NEW (undrawn) image from the library. Never removes used images.
+  const o = libImg(id);
+  if (!o || isUsed(o) || id === state.currentDrawId) return;
+  state.newQueue = state.newQueue.filter(x => x !== id);
+  state.bankImagesLib = state.bankImagesLib.filter(x => x.id !== id);
+  recordEvent(`bank-remove → ${o.name}`);
+  renderPool();
+  updateBank();
+}
+
+function overrideToImageId(id) {
+  // Repoint the current cast's provisional draw to image `id`.
+  // Library model: no duplication ever. The previously-current image, if it was
+  // truly unused (never ratified), returns to the FRONT of newQueue. If it was a
+  // used image (re-picked earlier), it simply stays in the library (history intact).
+  // Every override is logged as an override-trial; ratification happens on next throw.
+  if (!state.score || state.currentDrawId == null) return;
+  if (id === state.currentDrawId) return;
+  const chosen = libImg(id);
+  const prev = currentImg();
+  if (!chosen || !prev) return;
+
+  // Return the previous provisional image to newQueue front IF it is not used
+  // (history empty) — i.e. it was only ever a provisional draw, never ratified.
+  // If it has history (a used image that was being re-shown), leave it as-is.
+  if (!isUsed(prev)) {
+    // ensure it's represented once at the front of newQueue
+    state.newQueue = state.newQueue.filter(x => x !== prev.id);
+    state.newQueue.unshift(prev.id);
+  }
+
+  // Remove chosen from newQueue if present (it becomes the provisional current).
+  state.newQueue = state.newQueue.filter(x => x !== id);
+
+  state.currentDrawId = id;
+  patchCastImage(chosen.name);
+  recordEvent(`override-trial → ${chosen.name} (was ${prev.name}) · cast ${state.castIndex} [provisional]`, 'override-trial');
+  updateBank();
+  renderPool();
+}
+
+function patchCastImage(newImgName) {
+  // Update the most recent recorded cast's image after a manual override
+  if (!state.perf) return;
+  const sessions = state.perf.sessions;
+  const casts = sessions[sessions.length-1].casts;
+  // Find the last actual cast entry (skip event entries which have .type)
+  for (let i = casts.length - 1; i >= 0; i--) {
+    if (!casts[i].type) { casts[i].bankImage = newImgName; casts[i].bankImageOverridden = true; break; }
+  }
+  saveSession();
+}
+
+function recordEvent(type, kind) {
+  if (state.sessionStatus !== 'active' || !state.perf) return;
+  const sessions = state.perf.sessions;
+  // `kind` is a machine-readable tag for analysis hooks (override-trial,
+  // use-ratified, bank-remove, bank-commit, bank-reshuffle, etc.). `type` is the
+  // human-readable line. Events are interleaved with casts in the session record.
+  sessions[sessions.length-1].casts.push({ type, kind: kind || null, t: now() });
+  saveSession();
+}
+function clearBank() {
+  showModal('CLEAR IMAGE BANK',
+    'This will unload all images and empty the bank. The image library and its use-history for this bank will be lost.\n\nYour performance cast record is unaffected.',
+    [
+      { label: 'cancel', style: 'default' },
+      { label: 'clear bank', style: 'danger', action: () => {
+          state.bankImagesLib=[]; state.newQueue=[]; state.currentDrawId=null;
+          state.bankStaging=[]; state.bankStaged=false; state.bankSourceCount=0;
+          state.bankImgSeq=0; state.stagingWarnShown=false;
+          updateBank(); renderPool();
+        } }
+    ]);
+}
+function toggleCounter() { state.showCounter=!state.showCounter; updateBank(); }
+
+// ── Render ───────────────────────────────────────────────────────────────────
+
+function updateAll() {
+  updateSheetCols();
+  updateDiceDisplay();
+  updateBank();
+  updateScoreCard();
+  updatePrevCasts();
+  updateControls();
+  updateActiveLabel();
+  if (document.getElementById('present-overlay').classList.contains('active')) updatePresent();
+}
+
+function updateSheetCols() {
+  Object.entries(SHEETS).forEach(([key,sheet],idx) => {
+    const col = document.getElementById(`col-${key}`);
+    const active = state.activeSheets[key];
+    col.innerHTML = '';
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.className='sheet-header';
+    hdr.style.backgroundColor = active?'#0c0c0c':'#080808';
+    hdr.innerHTML=`<div class="sheet-dot" style="background:${active?sheet.color:'#787878'}"></div><div><div class="sheet-label" style="color:${sheet.color};opacity:${active?1:0.35}">${sheet.label}</div><div class="sheet-sublabel">${sheet.sublabel}</div></div>`;
+    hdr.onclick=()=>{ state.activeSheets[key]=!state.activeSheets[key]; state.settled=false; updateAll(); };
+    col.appendChild(hdr);
+
+    // SVG
+    const svgWrap = document.createElement('div');
+    svgWrap.className='sheet-svg-wrap';
+    svgWrap.innerHTML=`<svg viewBox="0 0 100 100" style="opacity:${active?1:0.3}">${renderSheetSVG(state.seeds[idx],sheet.color)}</svg>`;
+    if (state.casting && active) svgWrap.innerHTML+=`<div class="spin-overlay"><div class="spinner" style="border:1px solid ${sheet.color}"></div></div>`;
+    col.appendChild(svgWrap);
+
+    // Comp diagram (image only) — collapsible, open by default
+    if (key==='image') {
+      const cw = document.createElement('div');
+      cw.className='comp-wrap';
+      cw.style.opacity=active?1:0.25;
+      const isOpen = state.compDiagramOpen !== false; // open by default
+      cw.innerHTML=`
+        <div onclick="toggleCompDiagram()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding-bottom:${isOpen?'8px':'0'};user-select:none">
+          <div style="font-size:13px;color:#888;letter-spacing:0.14em">COMPOSITIONAL SCORE</div>
+          <div style="font-size:11px;color:#888;transition:transform 0.2s;transform:rotate(${isOpen?'0':'180deg'})" id="comp-chevron">▾</div>
+        </div>
+        <div id="comp-diagram-body" style="display:${isOpen?'block':'none'}">
+          ${renderCompDiagram(state.score?.composition||null, false)}
+        </div>`;
+      col.appendChild(cw);
+    }
+
+    // Items
+    const list = document.createElement('div');
+    list.className='items-list';
+    list.style.opacity=active?1:0.25;
+    sheet.items.forEach(item=>{
+      const lit = state.score?.[key]?.includes(item);
+      const d = document.createElement('div');
+      d.className='item'+(lit?' lit':'');
+      d.style.color=lit?sheet.color:(state.settled?'#707070':'#7c7c7c');
+      d.style.backgroundColor=lit?`${sheet.color}10`:'transparent';
+      d.style.borderLeftColor=lit?sheet.color:'transparent';
+      d.textContent=item;
+      list.appendChild(d);
+    });
+    col.appendChild(list);
+  });
+}
+
+function updateItems() {
+  // Re-colour sheet items after settled
+  Object.entries(SHEETS).forEach(([key,sheet])=>{
+    const col=document.getElementById(`col-${key}`);
+    const items=col.querySelectorAll('.item');
+    items.forEach((el,i)=>{
+      const item=sheet.items[i];
+      const lit=state.score?.[key]?.includes(item);
+      if (!lit) el.style.color=state.settled?'#707070':'#7c7c7c';
+    });
+  });
+  // Score header: label always amber, sub-text shows hexagram name after cast
+  const headerLabel=document.getElementById('score-header-label');
+  const headerSub=document.getElementById('score-header-sub');
+  if (headerLabel) {
+    headerLabel.style.color = '#c8a97e';
+    const lit = state.settled && state.score;
+    if (headerSub) {
+      headerSub.textContent = state.hexNum ? HEXAGRAM_NAMES[state.hexNum-1] : 'composite directive output';
+      headerSub.style.color = lit ? '#787060' : '#585858';
+      headerSub.style.transition = 'color 0.6s ease';
+    }
+  }
+}
+
+function updateSheetSVGs() {
+  Object.entries(SHEETS).forEach(([key,sheet],idx)=>{
+    const col=document.getElementById(`col-${key}`);
+    const svgEl=col.querySelector('svg');
+    if (svgEl) { svgEl.innerHTML=renderSheetSVG(state.seeds[idx],sheet.color); svgEl.style.opacity=state.activeSheets[key]?1:0.3; }
+  });
+}
+
+function updateDiceDisplay() {
+  const d1=state.die1, d2=state.die2, rolling=state.casting;
+  renderDieOctagon(document.getElementById('die1-svg'),d1,rolling);
+  renderDieOctagon(document.getElementById('die2-svg'),d2,rolling);
+  document.getElementById('die1-label').textContent=d1&&!rolling?TRIGRAMS[d1-1].element.toUpperCase():'DIE I';
+  document.getElementById('die2-label').textContent=d2&&!rolling?TRIGRAMS[d2-1].element.toUpperCase():'DIE II';
+  const hexDisp=document.getElementById('hex-display');
+  const noThrow=document.getElementById('no-throw');
+  if (state.hexNum&&!rolling&&d1&&d2) {
+    const upper=TRIGRAMS[d1-1],lower=TRIGRAMS[d2-1],name=HEXAGRAM_NAMES[state.hexNum-1];
+    hexDisp.innerHTML=`<div class="hex-glyph">${hexGlyph(state.hexNum)}</div><div class="hex-trigrams">${upper.sym} ${lower.sym} · no. ${state.hexNum}</div><div class="hex-name">${name}</div>`;
+    hexDisp.style.display='block';
+    noThrow.style.display='none';
+  } else if (!d1) {
+    hexDisp.style.display='none';
+    noThrow.style.display='block';
+  } else {
+    hexDisp.style.display='none';
+    noThrow.style.display='none';
+  }
+}
+
+function updateStagingView() {
+  // Refresh the pool modal if it's open, and the in-interface bank display
+  if (document.getElementById('pool-overlay').style.display === 'flex') renderPool();
+  updateBank();
+}
+
+function updateBank() {
+  const content=document.getElementById('bank-content');
+  const counter=document.getElementById('bank-counter');
+  const manageBtn=document.getElementById('bank-manage-btn');
+  const toggleBtn=document.getElementById('bank-toggle-counter');
+  // Pre-commit (staging): show a prompt to open the manager
+  if (!state.bankStaged) {
+    const n = state.bankStaging.length;
+    counter.textContent = n>0 ? `${n} staged` : '';
+    toggleBtn.style.display = 'none';
+    manageBtn.textContent = n>0 ? 'review & load' : 'load images';
+    content.innerHTML = n>0
+      ? `<div class="bank-await">${n} image${n!==1?'s':''} staged — click "review &amp; load" to commit</div>`
+      : `<div class="bank-await">— click "load images" to begin —</div>`;
+    return;
+  }
+  // Committed
+  toggleBtn.style.display = '';
+  manageBtn.textContent = 'manage';
+  const total = state.bankImagesLib.length;
+  if (total === 0) { state.bankStaged=false; updateBank(); return; }
+  const newN = state.newQueue.length;
+  const current = currentImg();
+  const exhausted = !current && newN === 0;
+  counter.textContent = state.showCounter && newN>0 ? `${newN} remaining` : '';
+  toggleBtn.textContent = state.showCounter ? 'hide' : 'count';
+  if (current) {
+    const overridden = state.score && isUsed(current) === false ? false : false; // (override marker handled in log)
+    const wasOverridden = state.currentDrawId != null && state.__lastAutoDrawId != null && state.__lastAutoDrawId !== state.currentDrawId;
+    const canChange = state.score && total > 1;
+    content.innerHTML=`<div class="bank-image-wrap"><img src="${current.url}" alt="${current.name}"><div class="bank-image-name">${current.name}${wasOverridden?' <span style="color:#c8a97e;font-style:italic">(override)</span>':''}</div>${canChange?`<div style="text-align:center;margin-top:6px"><button class="bank-btn" style="font-size:13px;font-style:italic" onclick="showPool()">change image…</button></div>`:''}</div>`;
+  } else if (exhausted) {
+    content.innerHTML=`<div class="bank-exhausted"><div class="bank-exhausted-msg">— bank exhausted —</div><button class="bank-reshuffle-btn" onclick="showPool()">open manager</button></div>`;
+  } else {
+    content.innerHTML=`<div class="bank-await">— cast to draw from bank —</div>`;
+  }
+}
+
+function updateScoreCard() {
+  const empty=document.getElementById('score-empty');
+  const card=document.getElementById('score-card');
+  const countEl=document.getElementById('cast-count');
+  countEl.textContent=state.castIndex>0?`${state.castIndex} cast${state.castIndex!==1?'s':''}`:'';
+  // Score header: label always amber, sub-text shows hexagram name after cast
+  const headerLabel=document.getElementById('score-header-label');
+  const headerSub=document.getElementById('score-header-sub');
+  if (headerLabel) {
+    headerLabel.style.color = '#c8a97e';
+    const lit = state.settled && state.score;
+    if (headerSub) {
+      headerSub.textContent = state.hexNum ? HEXAGRAM_NAMES[state.hexNum-1] : 'composite directive output';
+      headerSub.style.color = lit ? '#787060' : '#585858';
+      headerSub.style.transition = 'color 0.6s ease';
+    }
+  }
+  if (!state.score) { empty.style.display='block'; card.style.display='none'; return; }
+  empty.style.display='none'; card.style.display='block';
+  const s=state.score;
+  let html=`<div class="cast-no">CAST NO. ${state.castIndex} ───────────────────</div>`;
+  if (s.language) html+=scoreBlock('LANGUAGE','#c8a97e',s.language);
+  if (s.image) html+=scoreBlock('IMAGE','#7e9ec8',s.image);
+  if (s.composition) html+=`<div class="score-block"><div class="score-block-label" style="color:#7e9ec8">COMPOSITION ↓</div><div style="padding-left:10px;border-left:1px solid #7e9ec833">${renderCompDiagram(s.composition,false)}</div></div>`;
+  if (s.process) html+=scoreBlock('PROCESS','#9ec87e',s.process);
+  html+=`<div class="sd-label">── SD PROMPT DIRECTIVE ───────</div><div class="sd-prompt">${s.prompt}</div>`;
+  // Cast note
+  if (state.sessionStatus === 'active') {
+    html += `<div style="margin-top:14px;border-top:1px solid #1a1a1a;padding-top:10px" id="cast-note-section">`;
+    if (!state.castNoteOpen) {
+      html += `<button onclick="openCastNote()" style="background:none;border:none;color:#747474;font-family:'Courier New',monospace;font-size:16px;letter-spacing:0.18em;cursor:pointer;padding:0;transition:color 0.2s" onmouseover="this.style.color='#c8a97e'" onmouseout="this.style.color='#484848'">↳ add cast note</button>`;
+    } else {
+      html += `<div style="font-size:16px;color:#7c7c7c;letter-spacing:0.18em;margin-bottom:6px">↳ CAST NOTE</div>
+        <textarea id="cast-note-input" placeholder="immediate response — pre-articulate welcome…" rows="3" autofocus
+          style="width:100%;background:#0d0d0d;border:1px solid #1e1e1e;outline:none;resize:none;color:#9a9088;font-family:'Courier New',monospace;font-size:13px;line-height:1.8;padding:8px 10px;-webkit-font-smoothing:antialiased"
+          oninput="state.castNote=this.value">${state.castNote}</textarea>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button onclick="saveCastNote()" style="padding:4px 12px;background:transparent;border:1px solid #3a3a3a;color:#777;font-family:'Courier New',monospace;font-size:16px;letter-spacing:0.18em;cursor:pointer;transition:all 0.2s"
+            onmouseover="this.style.color='#c8a97e';this.style.borderColor='#c8a97e44'"
+            onmouseout="this.style.color='#777';this.style.borderColor='#3a3a3a'">save</button>
+          <button onclick="discardCastNote()" style="padding:4px 10px;background:transparent;border:none;color:#686868;font-family:'Courier New',monospace;font-size:16px;letter-spacing:0.18em;cursor:pointer;transition:color 0.2s"
+            onmouseover="this.style.color='#666'" onmouseout="this.style.color='#3a3a3a'">discard</button>
+        </div>`;
+    }
+    html += `</div>`;
+  }
+  card.innerHTML=html;
+}
+
+function scoreBlock(label,color,items) {
+  return `<div class="score-block"><div class="score-block-label" style="color:${color}">${label} ↓</div><div class="score-block-items" style="border-left:1px solid ${color}33">${items.map(t=>`<div class="score-block-item">· ${t}</div>`).join('')}</div></div>`;
+}
+
+function updatePrevCasts() {
+  const el=document.getElementById('prev-casts');
+  const list=document.getElementById('prev-list');
+  if (state.history.length<=1) { el.style.display='none'; return; }
+  el.style.display='block';
+  list.innerHTML=state.history.slice(1,4).map(h=>`<div class="prev-item">#${h.castNum} ${h.die1?`[${TRIGRAMS[h.die1-1].sym}·${TRIGRAMS[h.die2-1].sym} no.${h.hexNum}]`:''} — ${h.prompt?.slice(0,42)}…</div>`).join('');
+}
+
+function updateControls() {
+  const anyActive=Object.values(state.activeSheets).some(v=>v);
+  const castBtn=document.getElementById('cast-btn');
+  castBtn.textContent=state.casting?'casting…':'cast dice';
+  castBtn.disabled=state.casting||!anyActive;
+  document.getElementById('present-btn').style.display=state.score?'inline-block':'none';
+  document.getElementById('present-score-btn').style.display=state.score?'inline-block':'none';
+  document.getElementById('copy-btn').style.display=state.score?'inline-block':'none';
+}
+
+function updateActiveLabel() {
+  const active=Object.entries(state.activeSheets).filter(([,v])=>v).map(([k])=>k).join(' + ')||'none';
+  document.getElementById('active-label').innerHTML=`active: ${active}<br>click headers to toggle`;
+}
+
+// ── Die inputs ───────────────────────────────────────────────────────────────
+
+function clampDie(input, which) {
+  let raw=parseInt(input.value);
+  if (input.value==='') { state[which==='d1'?'manualD1':'manualD2']=''; updateDieInput(which); return; }
+  if (!isNaN(raw)) { raw=Math.min(8,Math.max(1,raw)); input.value=raw; state[which==='d1'?'manualD1':'manualD2']=String(raw); }
+  updateDieInput(which);
+}
+
+function updateDieInput(which) {
+  const idx=which==='d1'?1:2;
+  const val=state[which==='d1'?'manualD1':'manualD2'];
+  const n=parseInt(val);
+  const valid=n>=1&&n<=8;
+  const svgEl=document.getElementById(`input-die${idx}-svg`);
+  const input=document.getElementById(`input-d${idx}`);
+  const labelEl=document.getElementById(`input-d${idx}-label`);
+  renderInputDieOctagon(svgEl,valid,n);
+  input.className='die-input'+(valid?' valid':'');
+  const trigram=valid?TRIGRAMS[n-1]:null;
+  const pos=which==='d1'?'upper':'lower';
+  labelEl.style.color=valid?'#9a8a6a':'#888';
+  labelEl.innerHTML=`${valid?trigram.sym:'·'}<br>${pos}`;
+  // Update enter button
+  const d1=parseInt(state.manualD1),d2=parseInt(state.manualD2);
+  const ready=d1>=1&&d1<=8&&d2>=1&&d2<=8;
+  const enterBtn=document.getElementById('enter-btn');
+  enterBtn.className='enter-btn'+(ready?' ready':'');
+}
+
+// ── Present mode ─────────────────────────────────────────────────────────────
+
+function enterPresent() {
+  updatePresent();
+  document.getElementById('present-overlay').classList.add('active');
+}
+function exitPresent() { document.getElementById('present-overlay').classList.remove('active'); }
+
+function enterPresentScore() {
+  updatePresentScore();
+  document.getElementById('present-score-overlay').classList.add('active');
+}
+function exitPresentScore() { document.getElementById('present-score-overlay').classList.remove('active'); }
+
+function updatePresentScore() {
+  const s = state.score;
+  if (!s) return;
+  const d1=state.die1, d2=state.die2;
+  const upper = TRIGRAMS[d1-1], lower = TRIGRAMS[d2-1];
+
+  // Header hex info
+  document.getElementById('ps-hex-info').innerHTML =
+    `&nbsp;&nbsp;${upper.sym}${lower.sym} &middot; no.&thinsp;${state.hexNum} &middot; ${HEXAGRAM_NAMES[state.hexNum-1]} &middot; cast ${state.castIndex}`;
+
+  let html = '';
+
+  // Dice display
+  html += `<div style="text-align:center;padding:24px 0 20px;border-bottom:1px solid #1e1c18;margin-bottom:24px">
+    <div style="font-size:13px;color:#666;letter-spacing:0.22em;margin-bottom:14px">2d8 — I CHING CAST</div>
+    <div style="display:inline-flex;align-items:center;gap:20px">`;
+
+  // Die SVGs (reuse octagon geometry)
+  const dieSize = 60, cr = 27;
+  [d1, d2].forEach((dv, i) => {
+    const trigram = TRIGRAMS[dv-1];
+    const pts = octagonPoints(dieSize/2, dieSize/2, cr);
+    const fc = ((dv-1)*Math.PI/4) - Math.PI/2;
+    const a1=fc-Math.PI/8, a2=fc+Math.PI/8;
+    const cx=dieSize/2, cy=dieSize/2;
+    const x1=cx+cr*Math.cos(a1), y1=cy+cr*Math.sin(a1);
+    const x2=cx+cr*Math.cos(a2), y2=cy+cr*Math.sin(a2);
+    html += `<div style="text-align:center">
+      <svg width="${dieSize}" height="${dieSize}" viewBox="0 0 ${dieSize} ${dieSize}">
+        <polygon points="${pts}" fill="#0d0d0d" stroke="#c8a97e" stroke-width="1" opacity="1"/>
+        <polygon points="${cx},${cy} ${x1},${y1} ${x2},${y2}" fill="#c8a97e" opacity="0.2"/>
+        <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#c8a97e" stroke-width="2.5" opacity="0.9"/>
+        <text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="17" fill="#c8a97e" font-family="serif">${trigram.sym}</text>
+        <text x="${cx}" y="${cy+11}" text-anchor="middle" font-size="7" fill="#9a8a68" font-family="Courier New,monospace">${dv}</text>
+      </svg>
+      <div style="font-size:11px;color:#9a8a6a;letter-spacing:0.12em;margin-top:5px">${trigram.element.toUpperCase()}</div>
+    </div>`;
+    if (i===0) html += `<div style="color:#555;font-size:16px;padding-bottom:16px">·</div>`;
+  });
+
+  html += `</div>
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid #1a1a18;text-align:center;font-family:'Courier New',monospace">
+      <div style="font-size:22px;color:#c8a97e">${hexGlyph(state.hexNum)}</div>
+      <div style="font-size:12px;color:#9a8a6a;letter-spacing:0.18em;margin-top:2px">${upper.sym} ${lower.sym} · no. ${state.hexNum}</div>
+      <div style="font-size:19px;color:#d4c4a0;letter-spacing:0.1em;margin-top:5px">${HEXAGRAM_NAMES[state.hexNum-1]}</div>
+    </div>
+  </div>`;
+
+  // Image bank (if loaded)
+  const bankCurrent = currentImg();
+  if (bankCurrent) {
+    html += `<div style="margin-bottom:24px;border-bottom:1px solid #1e1c18;padding-bottom:20px">
+      <div style="font-size:13px;color:#666;letter-spacing:0.18em;margin-bottom:10px">IMAGE BANK</div>
+      <img src="${bankCurrent.url}" style="width:100%;max-height:220px;object-fit:contain;background:#070707;display:block;border:1px solid #1e1e1e">
+      <div style="font-size:13px;color:#7c7c7c;letter-spacing:0.08em;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${bankCurrent.name}</div>
+    </div>`;
+  }
+
+  // Score card
+  html += `<div class="psc-cast-no">CAST NO. ${state.castIndex} ─────────────────────────</div>`;
+
+  const scoreBlock = (label, color, items) => {
+    if (!items?.length) return '';
+    const itemsHtml = items.map(t => `<div class="psc-block-item" style="color:${color}">· ${t}</div>`).join('');
+    return `<div class="psc-block">
+      <div class="psc-block-label" style="color:${color}">${label} ↓</div>
+      <div class="psc-block-items" style="border-left:2px solid ${color}33">${itemsHtml}</div>
+    </div>`;
+  };
+
+  html += scoreBlock('LANGUAGE', '#c8a97e', s.language);
+  html += scoreBlock('IMAGE', '#7e9ec8', s.image);
+
+  if (s.composition) {
+    html += `<div class="psc-block">
+      <div class="psc-block-label" style="color:#7e9ec8">COMPOSITION ↓</div>
+      <div style="padding-left:14px;border-left:2px solid #7e9ec833">${renderCompDiagram(s.composition, false, true)}</div>
+    </div>`;
+  }
+
+  html += scoreBlock('PROCESS', '#9ec87e', s.process);
+  html += `<div class="psc-sd-label">── SD PROMPT DIRECTIVE ─────────────</div>
+    <div class="psc-sd-prompt">${s.prompt}</div>`;
+
+  document.getElementById('ps-body').innerHTML = html;
+}
+
+function updatePresent() {
+  const s=state.score;
+  if (!s) return;
+  const d1=state.die1,d2=state.die2;
+  const upper=d1?TRIGRAMS[d1-1]:null,lower=d2?TRIGRAMS[d2-1]:null;
+  const name=state.hexNum?HEXAGRAM_NAMES[(d1-1)*8+(d2-1)]:null;
+  document.getElementById('present-hex').textContent=upper&&lower?` ${hexGlyph(state.hexNum)} ${upper.sym}${lower.sym} · no.${state.hexNum} · ${name} · cast ${state.castIndex}`:'';
+
+  presentSheet('ps-language','I. LANGUAGE','theoretical / affective','#c8a97e',s.language||[],null);
+  const imgExtra=s.composition?`<div class="present-divider"><div class="present-sublabel" style="color:#7aaabb">COMPOSITIONAL SCORE</div>${renderCompDiagram(s.composition,true)}</div>`:null;
+  presentSheet('ps-image','II. IMAGE','operation / material','#7e9ec8',s.image||[],imgExtra);
+
+  const bankImage=currentImg();
+  let procExtra=`<div class="present-divider"><div class="present-sublabel" style="color:#8abb7a">SD PROMPT DIRECTIVE</div><div class="present-prompt">${s.prompt}</div></div>`;
+  if (bankImage) procExtra+=`<div class="present-divider"><div class="present-sublabel" style="color:#8abb7a">V. IMAGE BANK</div><img class="present-img" src="${bankImage.url}" alt="${bankImage.name}"><div style="margin-top:6px;font-size:11px;color:#888;letter-spacing:0.1em">${bankImage.name}</div></div>`;
+  presentSheet('ps-process','III. PROCESS','score / directive / duration','#9ec87e',s.process||[],procExtra);
+}
+
+function presentSheet(id,label,sublabel,color,items,extra) {
+  const el=document.getElementById(id);
+  el.innerHTML=`<div style="margin-bottom:28px;flex-shrink:0"><div class="present-sheet-label" style="color:${color}">${label}</div><div class="present-sheet-sublabel">${sublabel}</div></div><div>${items.map(item=>`<div class="present-item" style="color:${color};border-left-color:${color}44">${item}</div>`).join('')}${extra||''}</div>`;
+}
+
+// ── Copy score ────────────────────────────────────────────────────────────────
+
+function copyScore() {
+  const s=state.score; if(!s) return;
+  const c=s.composition;
+  const ct=c?`COMPOSITION:\n  principle: ${c.principle}\n  centre: x${Math.round(c.x*100)}% · y${Math.round(c.y*100)}%\n  rotation: ${c.rotationLabel}\n  scale: ${c.scale}\n  — suggestion only. human obstinacy prevails.`:'';
+  const dh=s.die1?`THROW: ${TRIGRAMS[s.die1-1].sym} ${TRIGRAMS[s.die2-1].sym} · hexagram no. ${s.hexNum} · ${HEXAGRAM_NAMES[(s.die1-1)*8+(s.die2-1)]}`:'';
+  const txt=[`FONTANA MIX — CAST NO. ${state.castIndex}`,dh,'',
+    s.language?`LANGUAGE:\n${s.language.map(t=>`  · ${t}`).join('\n')}`:'',
+    s.image?`IMAGE:\n${s.image.map(t=>`  · ${t}`).join('\n')}`:'',
+    ct, s.process?`PROCESS:\n${s.process.map(t=>`  · ${t}`).join('\n')}`:'',
+    '','SD DIRECTIVE:\n  '+s.prompt
+  ].filter(Boolean).join('\n');
+  navigator.clipboard.writeText(txt).catch(()=>{});
+}
+
+// ── About ─────────────────────────────────────────────────────────────────────
+
+function toggleCompDiagram() {
+  state.compDiagramOpen = state.compDiagramOpen === false ? true : false;
+  const body = document.getElementById('comp-diagram-body');
+  const chevron = document.getElementById('comp-chevron');
+  const isOpen = state.compDiagramOpen !== false;
+  if (body) body.style.display = isOpen ? 'block' : 'none';
+  if (chevron) chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+function showFullscreenInfo() {
+  const p = document.getElementById('fullscreen-popup');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  if (p.style.display === 'block') {
+    setTimeout(() => document.addEventListener('click', hideFullscreenInfo), 10);
+  }
+}
+function hideFullscreenInfo() {
+  document.getElementById('fullscreen-popup').style.display = 'none';
+  document.removeEventListener('click', hideFullscreenInfo);
+}
+
+function showAbout() { document.getElementById('about-overlay').classList.add('active'); }
+function hideAbout() { document.getElementById('about-overlay').classList.remove('active'); }
+
+// ── Drag & drop ───────────────────────────────────────────────────────────────
+
+document.getElementById('pool-grid').addEventListener('dragover',e=>{e.preventDefault();document.getElementById('pool-grid').style.background='#c8a97e08';});
+document.getElementById('pool-grid').addEventListener('dragleave',()=>document.getElementById('pool-grid').style.background='');
+document.getElementById('pool-grid').addEventListener('drop',e=>{e.preventDefault();document.getElementById('pool-grid').style.background='';loadFiles(e.dataTransfer.files);});
+document.getElementById('bank-file-input').addEventListener('change',e=>{loadFiles(e.target.files);e.target.value='';});
+document.getElementById('bank-folder-input').addEventListener('change',e=>{loadFiles(e.target.files);e.target.value='';});
+document.getElementById('import-file-input').addEventListener('change',e=>{ if(e.target.files&&e.target.files[0]) importPerformanceFile(e.target.files[0]); e.target.value=''; });
+
+// ── Session / Performance ─────────────────────────────────────────────────────
+
+const now = () => new Date().toISOString();
+const fmtTime = iso => new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+const fmtDate = iso => new Date(iso).toLocaleDateString([],{year:'numeric',month:'short',day:'numeric'});
+const fmtElapsed = secs => {
+  const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
+  return h>0?`${h}h ${m}m`:m>0?`${m}m ${s}s`:`${s}s`;
+};
+
+function beginPerformance() {
+  // Warn if a previous performance record exists
+  const existing = localStorage.getItem(LS_KEY);
+  if (existing) {
+    try {
+      const data = JSON.parse(existing);
+      if (data.perf && data.perf.sessions?.length > 0) {
+        showModal('PREVIOUS PERFORMANCE EXISTS',
+          'A previous performance record exists in this browser. Beginning a new performance will overwrite it permanently.\n\nDownload the existing log first, begin without downloading, or cancel.',
+          [
+            { label: 'cancel', style: 'default' },
+            { label: 'begin without downloading', style: 'danger', action: () => {
+                showModal('ERASE PREVIOUS RECORD?',
+                  'This will permanently erase the previous performance record. It has not been downloaded. This cannot be undone.',
+                  [
+                    { label: 'cancel', style: 'default' },
+                    { label: 'erase and begin', style: 'danger', action: () => doBeginPerformance() }
+                  ]);
+              } },
+            { label: 'download + begin', style: 'primary', action: () => {
+                state.perf = data.perf;
+                downloadLog();
+                setTimeout(() => doBeginPerformance(), 400);
+              } }
+          ]);
+        return;
+      }
+    } catch(e) {}
+  }
+  doBeginPerformance();
+}
+
+function doBeginPerformance() {
+  const name = state.perfName.trim() || 'untitled performance';
+  const t = now();
+  state.perf = { name, note: state.perfNote.trim(), opened: t, sessions: [{started:t, ended:null, casts:[]}] };
+  state.sessionStatus = 'active';
+  state.elapsed = 0;
+  claimOwnership(); // beginning a performance here makes THIS tab the single writer
+  updateSessionBar();
+}
+
+function pauseSession() {
+  if (state.perf && !amOwner) { showModal('READ-ONLY WINDOW','This window is read-only — the performance is live in another tab.',[{label:'ok',style:'default'}]); return; }
+  if (state.sessionNoteText.trim()) { recordReflection('session', state.sessionNoteText, null); state.sessionNoteText=''; }
+  const t = now();
+  const sessions = state.perf.sessions;
+  sessions[sessions.length-1].ended = t;
+  state.sessionStatus = 'paused';
+  saveSession(); updateSessionBar();
+}
+
+function resumeSession() {
+  // Resuming makes this tab the single writer — covers the imported-then-resumed
+  // case (imported performances load paused & unowned until the artist resumes).
+  if (!amOwner) claimOwnership();
+  const t = now();
+  state.perf.sessions.push({started:t, ended:null, casts:[]});
+  state.sessionStatus = 'active';
+  state.sessionNoteText = '';
+  saveSession(); updateSessionBar();
+}
+
+function endPerformance() {
+  if (state.perf && !amOwner) {
+    showModal('READ-ONLY WINDOW','This window is read-only — the performance is live in another tab. End it from the tab that holds it.',[{label:'ok',style:'default'}]);
+    return;
+  }
+  if (state.sessionNoteText.trim()) { recordReflection('session', state.sessionNoteText, null); state.sessionNoteText=''; }
+  // Ending is a commitment point: ratify the final cast's current image as used.
+  ratifyCurrentDraw(state.castIndex);
+  const t = now();
+  const sessions = state.perf.sessions;
+  if (!sessions[sessions.length-1].ended) sessions[sessions.length-1].ended = t;
+  state.perf.closed = t;
+  state.sessionStatus = 'idle';
+  saveSession();
+  // Auto-download log then clear from memory
+  downloadLog();
+  const wasOwner = amOwner;
+  setTimeout(() => {
+    state.perf = null;
+    if (wasOwner) { try { localStorage.removeItem(LS_KEY); } catch(e){} }
+    amOwner = false;
+    updateSessionBar();
+    updateAll();
+  }, 500);
+}
+
+function recordCast(s, imgName) {
+  if (state.sessionStatus !== 'active' || !state.perf) return;
+  const entry = {
+    t: now(), die1:s.die1, die2:s.die2, hexNum:s.hexNum,
+    hexName: s.hexNum ? HEXAGRAM_NAMES[s.hexNum-1] : null,
+    language:s.language||[], image:s.image||[], process:s.process||[],
+    composition:s.composition||null, prompt:s.prompt, bankImage:imgName||null,
+    bankImageOverridden:false
+  };
+  const sessions = state.perf.sessions;
+  sessions[sessions.length-1].casts.push(entry);
+  saveSession();
+}
+
+function generateLog() {
+  const perf = state.perf; if (!perf) return '';
+  let log = `FONTANA MIX — PERFORMANCE LOG\n${'─'.repeat(48)}\n`;
+  log += `PERFORMANCE: ${perf.name}\n`;
+  log += `OPENED: ${fmtDate(perf.opened)} ${fmtTime(perf.opened)}\n`;
+  if (perf.note) log += `INTENTION: ${perf.note}\n`;
+  if (perf.closed) log += `CLOSED: ${fmtDate(perf.closed)} ${fmtTime(perf.closed)}\n`;
+  log += '\n';
+  let gc = 0;
+  perf.sessions.forEach((sess, si) => {
+    log += `${'─'.repeat(48)}\nSESSION ${si+1}  ${fmtDate(sess.started)} ${fmtTime(sess.started)}`;
+    if (sess.ended) {
+      const sameDay = fmtDate(sess.started) === fmtDate(sess.ended);
+      log += ` → ${sameDay ? '' : fmtDate(sess.ended)+' '}${fmtTime(sess.ended)}`;
+    }
+    log += '\n\n';
+    // Group consecutive bank events (override-trials, ratifications) into a
+    // visually distinct block with breathing room before the next cast.
+    let inEventBlock = false;
+    const flushEventGap = () => { if (inEventBlock) { log += '\n'; inEventBlock = false; } };
+    sess.casts.forEach(c => {
+      if (c.type === 'bank-reshuffle') { flushEventGap(); log += `  — image bank reshuffled [${fmtTime(c.t)}]\n\n`; return; }
+      if (c.kind === 'override-trial') { log += `    ↻ ${c.type} [${fmtTime(c.t)}]\n`; inEventBlock = true; return; }
+      if (c.kind === 'use-ratified') { log += `    ✓ ${c.type} [${fmtTime(c.t)}]\n`; inEventBlock = true; return; }
+      if (c.type === 'bank-commit') { flushEventGap(); log += `  — image bank committed [${fmtTime(c.t)}]\n\n`; return; }
+      if (c.type && c.type.startsWith('bank-remove')) { flushEventGap(); log += `  — ${c.type} [${fmtTime(c.t)}]\n\n`; return; }
+      if (c.type === 'reflection') {
+        flushEventGap();
+        const prefix = c.tag==='cast'?'  ↳':c.tag==='journal'?'  ◈':'  ⊙';
+        const label = c.tag==='cast'?'':c.tag==='journal'?` [${fmtTime(c.t)}]`:' SESSION NOTE:';
+        log += `${prefix}${label} ${c.text.replace(/\n/g,'\n     ')}\n\n`;
+        return;
+      }
+      if (c.type) return;
+      flushEventGap();
+      gc++;
+      const upper=c.die1?TRIGRAMS[c.die1-1]:null, lower=c.die2?TRIGRAMS[c.die2-1]:null;
+      log += `  CAST ${gc}  `;
+      if (upper&&lower) log += `${upper.sym}${lower.sym} · no.${c.hexNum} · ${c.hexName}  `;
+      log += `[${fmtTime(c.t)}]\n`;
+      if (c.language?.length) log += `  LANGUAGE: ${c.language.join(' · ')}\n`;
+      if (c.image?.length) log += `  IMAGE: ${c.image.join(' · ')}\n`;
+      if (c.process?.length) log += `  PROCESS: ${c.process.join(' · ')}\n`;
+      if (c.composition) log += `  COMPOSITION: ${c.composition.principle} · rot ${c.composition.rotationLabel} · ${c.composition.scale}\n`;
+      if (c.bankImage) log += `  IMAGE BANK: ${c.bankImage}${c.bankImageOverridden?' (manual override)':''}\n`;
+      log += `  SD: ${c.prompt}\n\n`;
+    });
+    flushEventGap();
+    if (si < perf.sessions.length-1) {
+      const gap = Math.round((new Date(perf.sessions[si+1].started)-new Date(sess.ended))/60000);
+      let gapStr;
+      if (gap < 60) gapStr = `${gap} min`;
+      else if (gap < 1440) gapStr = `${Math.floor(gap/60)} hr ${gap%60} min`;
+      else gapStr = `${Math.floor(gap/1440)} day${Math.floor(gap/1440)!==1?'s':''} ${Math.floor((gap%1440)/60)} hr ${gap%60} min`;
+      log += `  — paused ${gapStr} (${gap} min) —\n\n`;
+    }
+  });
+  log += `${'─'.repeat(48)}\n${gc} cast${gc!==1?'s':''} total\n`;
+  return log;
+}
+
+// Reusable custom modal — buttons: [{label, style, action}]
+// style: 'primary' (amber), 'default' (grey), 'danger' (muted red)
+function showModal(title, message, buttons) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-message').textContent = message;
+  const btnRow = document.getElementById('modal-buttons');
+  btnRow.innerHTML = '';
+  buttons.forEach(b => {
+    const btn = document.createElement('button');
+    btn.textContent = b.label;
+    const colors = {
+      primary: ['#c8a97e', '#c8a97e44'],
+      default: ['#888', '#3a3a3a'],
+      danger:  ['#c88a7e', '#c88a7e44']
+    };
+    const [fg, bc] = colors[b.style || 'default'];
+    btn.style.cssText = `padding:7px 18px;background:transparent;border:1px solid ${bc};color:${fg};font-family:'Courier New',monospace;font-size:13px;letter-spacing:0.15em;cursor:pointer;transition:all 0.2s`;
+    btn.onmouseover = () => { btn.style.background = fg + '11'; btn.style.borderColor = fg; };
+    btn.onmouseout = () => { btn.style.background = 'transparent'; btn.style.borderColor = bc; };
+    btn.onclick = () => { hideModal(); if (b.action) b.action(); };
+    btnRow.appendChild(btn);
+  });
+  document.getElementById('modal-overlay').style.display = 'flex';
+}
+function hideModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+
+function showJournal() {
+  document.getElementById('journal-overlay').style.display='flex';
+  const ta = document.getElementById('journal-text');
+  // Restore the in-progress (unsaved) thought
+  ta.value = state.journalDraft || '';
+  ta.focus();
+}
+function hideJournal() {
+  // Close always preserves the unsaved thought as a draft — never destructive.
+  state.journalDraft = document.getElementById('journal-text').value;
+  if (state.perf) saveSession();
+  document.getElementById('journal-overlay').style.display='none';
+}
+function saveJournalEntry() {
+  // Each save commits the current text as its own sealed ◈ entry and clears the
+  // input for the next thought. Saved entries are final (a follow-up entry can
+  // annotate or correct a previous one — that shift is itself part of the record).
+  const text = document.getElementById('journal-text').value.trim();
+  if (!text) return; // nothing to save; leave the field as-is
+  recordReflection('journal', text, null);
+  state.journalDraft = '';
+  const ta = document.getElementById('journal-text');
+  ta.value = '';
+  ta.focus(); // stay on the page, ready for the next thought
+  if (state.perf) saveSession();
+}
+function discardJournalDraft() {
+  // Clears only the current unsaved thought — committed ◈ entries are untouched.
+  // Stays open with a cleared field, ready to start over.
+  state.journalDraft = '';
+  const ta = document.getElementById('journal-text');
+  ta.value = '';
+  ta.focus();
+  if (state.perf) saveSession();
+}
+
+function openCastNote() { state.castNoteOpen=true; updateScoreCard(); }
+function discardCastNote() { state.castNote=''; state.castNoteOpen=false; updateScoreCard(); }
+function saveCastNote() {
+  const text = state.castNote.trim();
+  if (text) recordReflection('cast', text, state.castIndex);
+  state.castNote=''; state.castNoteOpen=false; updateScoreCard();
+}
+
+function recordReflection(tag, text, attachToCast) {
+  if (!text.trim() || !state.perf) return;
+  const sessions = state.perf.sessions;
+  sessions[sessions.length-1].casts.push({ type:'reflection', tag, text:text.trim(), t:now(), attachToCast });
+  saveSession();
+}
+
+function showLog() {
+  document.getElementById('log-title').textContent = `PERFORMANCE LOG — ${state.perf?.name?.toUpperCase()||''}`;
+  document.getElementById('log-body').textContent = generateLog() || '— no casts recorded yet —';
+  document.getElementById('log-overlay').classList.add('active');
+}
+function hideLog() { document.getElementById('log-overlay').classList.remove('active'); }
+
+// The downloaded .txt carries the human-readable log AND a trailing machine-only
+// state block, so the single file a person naturally saves is also a faithful,
+// restorable backup ("all three" method). Import scans for this fence.
+const FM_STATE_OPEN = '<!-- FM-STATE v2 ';
+const FM_STATE_CLOSE = ' FM-STATE-END -->';
+
+function downloadLog() {
+  const log = generateLog(); if (!log) return;
+  let out = log;
+  if (state.perf) {
+    out += `\n\n${FM_STATE_OPEN}` + JSON.stringify(snapshotState()) + `${FM_STATE_CLOSE}\n`;
+  }
+  const blob = new Blob([out],{type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `fontana-mix-${(state.perf?.name||'performance').replace(/\s+/g,'-').toLowerCase()}.txt`;
+  a.click();
+}
+
+// Export the full restorable state as a .json (canonical reloadable artifact).
+function exportPerformance() {
+  if (!state.perf) { showModal('NO PERFORMANCE','There is no performance to export.',[{label:'ok',style:'default'}]); return; }
+  const blob = new Blob([JSON.stringify(snapshotState(), null, 2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `fontana-mix-${(state.perf?.name||'performance').replace(/\s+/g,'-').toLowerCase()}.json`;
+  a.click();
+}
+
+// Parse a performance backup from either a .json file or a .txt with the embedded
+// FM-STATE block. Returns a state object or null. NEVER rebuilds from rendered log text.
+function parseBackupText(text) {
+  if (!text) return null;
+  const i = text.indexOf(FM_STATE_OPEN);
+  if (i !== -1) {
+    const j = text.indexOf(FM_STATE_CLOSE, i);
+    if (j !== -1) { try { return JSON.parse(text.slice(i + FM_STATE_OPEN.length, j).trim()); } catch(e) {} }
+  }
+  try { const d = JSON.parse(text.trim()); if (d && d.perf) return d; } catch(e) {}
+  return null;
+}
+
+// Import: read the chosen file, validate, load PAUSED/revisit-only (does NOT claim
+// ownership or write). The artist then explicitly resumes to go live.
+function importPerformanceFile(file) {
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = (e) => {
+    const data = parseBackupText(String(e.target.result || ''));
+    if (!data || !data.perf) {
+      showModal('IMPORT FAILED',
+        'That file does not contain a restorable performance. Import needs a Fontana Mix .json export, or a .txt log that still contains its embedded state block.\n\nA plain reading log without the embedded block cannot be faithfully restored.',
+        [{label:'ok',style:'default'}]);
+      return;
+    }
+    const n = (data.perf.sessions||[]).reduce((a,s)=>a + s.casts.filter(c=>!c.type).length, 0);
+    const nm = data.perf.name || 'untitled';
+    const proceed = () => {
+      adoptPerformance(data, { asPaused: true });
+      hideLog();
+      showModal('PERFORMANCE IMPORTED',
+        `"${nm}" (${n} cast${n!==1?'s':''}) is loaded and PAUSED — you are viewing it, not yet writing to it.\n\nClick "resume" in the session bar to continue it live in this tab (this tab then becomes the owner).`,
+        [{label:'ok',style:'primary'}]);
+    };
+    if (state.perf && amOwner) {
+      showModal('REPLACE CURRENT PERFORMANCE?',
+        `This tab owns a live performance. Importing "${nm}" will replace what is loaded here (loads paused; does not auto-resume).\n\nExport the current one first if you need it.`,
+        [ {label:'cancel',style:'default'}, {label:'import anyway',style:'danger',action:proceed} ]);
+    } else { proceed(); }
+  };
+  r.readAsText(file);
+}
+
+function generateJournal() {
+  const perf = state.perf; if (!perf) return '';
+  let log = `FONTANA MIX — JOURNAL\n${'─'.repeat(48)}\n`;
+  log += `${perf.name}\n`;
+  if (perf.note) log += `intention: ${perf.note}\n`;
+  log += `opened: ${fmtDate(perf.opened)} ${fmtTime(perf.opened)}\n`;
+  if (perf.closed) log += `closed: ${fmtDate(perf.closed)} ${fmtTime(perf.closed)}\n`;
+  log += '\n';
+  let gc = 0;
+  let hasEntries = false;
+  perf.sessions.forEach((sess, si) => {
+    const sessionEntries = sess.casts.filter(c => c.type === 'reflection');
+    if (sessionEntries.length === 0 && sess.casts.filter(c => !c.type).length === 0) return;
+    log += `${'─'.repeat(48)}\n`;
+    log += `SESSION ${si+1}  ${fmtDate(sess.started)} ${fmtTime(sess.started)}`;
+    if (sess.ended) {
+      const sameDay = fmtDate(sess.started) === fmtDate(sess.ended);
+      log += ` → ${sameDay ? '' : fmtDate(sess.ended)+' '}${fmtTime(sess.ended)}`;
+    }
+    log += '\n\n';
+    let castNum = 0;
+    sess.casts.forEach(c => {
+      if (!c.type) { castNum++; gc++; }
+      if (c.type === 'reflection') {
+        hasEntries = true;
+        const prefix = c.tag==='cast'?'  ↳':c.tag==='journal'?'  ◈':'  ⊙';
+        const ctx = c.tag==='cast' ? `  CAST ${gc}  [${fmtTime(c.t)}]\n` :
+                    c.tag==='session' ? `  ⊙ SESSION NOTE  [${fmtTime(c.t)}]\n` :
+                    `  ◈ JOURNAL  [${fmtTime(c.t)}]\n`;
+        log += ctx;
+        log += `${prefix} ${c.text.replace(/\n/g,'\n     ')}\n\n`;
+      }
+    });
+    if (si < perf.sessions.length-1) {
+      const gap = Math.round((new Date(perf.sessions[si+1].started)-new Date(sess.ended))/60000);
+      if (gap > 0) log += `  — paused ${gap} min —\n\n`;
+    }
+  });
+  if (!hasEntries) log += '— no journal entries recorded —\n';
+  log += `${'─'.repeat(48)}\n`;
+  return log;
+}
+
+function downloadJournal() {
+  const journal = generateJournal(); if (!journal) return;
+  const blob = new Blob([journal],{type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `fontana-mix-journal-${(state.perf?.name||'performance').replace(/\s+/g,'-').toLowerCase()}.txt`;
+  a.click();
+}
+
+function updateSessionBar() {
+  const s = state.sessionStatus;
+  const dot = document.getElementById('sess-dot');
+  const idle = document.getElementById('sess-idle');
+  const active = document.getElementById('sess-active');
+  const colors = {idle:'#333', active:'#9ec87e', paused:'#c8a97e'};
+  dot.style.backgroundColor = colors[s];
+  dot.style.boxShadow = s==='active'?`0 0 6px ${colors.active}33`:'none';
+  if (s === 'idle') {
+    idle.style.display = 'flex'; active.style.display = 'none';
+    document.getElementById('sess-note-row').style.display = 'none';
+    // Show log button in idle state if a record exists
+    const idleLogBtn = document.getElementById('idle-log-btn');
+    if (idleLogBtn) idleLogBtn.style.display = state.perf ? 'inline-block' : 'none';
+  } else {
+    idle.style.display = 'none'; active.style.display = 'flex';
+    document.getElementById('sess-note-row').style.display = 'block';
+    document.getElementById('sess-name-display').textContent = state.perf?.name || '';
+    document.getElementById('sess-name-display').style.color = colors[s];
+    document.getElementById('sess-status-display').textContent = s==='active'
+      ? `session ${state.perf?.sessions?.length} · ${fmtElapsed(state.elapsed)}`
+      : 'paused';
+    document.getElementById('sess-note-display').textContent = state.perf?.note || '';
+    document.getElementById('sess-pause-btn').style.display = s==='active'?'inline-block':'none';
+    document.getElementById('sess-resume-btn').style.display = s==='paused'?'inline-block':'none';
+  }
+}
+
+// ── localStorage persistence ──────────────────────────────────────────────────
+
+// ── Storage: NEW VERSIONED KEY (r94) ─────────────────────────────────────────
+// r94 uses its OWN key, isolated from any earlier version's 'fontana-mix-session'.
+// Earlier records are never touched by r94; they come in only via explicit import.
+const LS_KEY = 'fontana-mix-session-v2';
+// Single-writer ownership: only the tab that OWNS the live performance writes to
+// storage. Other tabs go read-only (banner) to prevent multi-tab clobber.
+const TAB_ID = 'tab-' + Math.random().toString(36).slice(2,10) + '-' + Date.now().toString(36);
+let amOwner = false;             // does THIS tab own the live performance?
+let bc = null;                   // BroadcastChannel, if supported
+try { bc = new BroadcastChannel('fontana-mix-v2'); } catch(e) { bc = null; }
+
+function snapshotState() {
+  return {
+    schemaVersion: 2,
+    perf: state.perf, sessionStatus: state.sessionStatus,
+    elapsed: state.elapsed, perfName: state.perfName, perfNote: state.perfNote,
+    journalDraft: state.journalDraft || '',
+    owner: { tabId: TAB_ID, version: FM_VERSION, stamp: Date.now() }
+  };
+}
+
+function claimOwnership() {
+  // Become the single writer; tell any other tab to stand down.
+  amOwner = true;
+  try { if (bc) bc.postMessage({ type: 'claim', tabId: TAB_ID, version: FM_VERSION, stamp: Date.now() }); } catch(e){}
+  saveSession(); // writes with this tab as owner
+  hideReadonlyBanner();
+}
+
+function goReadOnly(byVersion) {
+  // Another tab took over. Stop writing; show the banner. Content stays visible.
+  amOwner = false;
+  showReadonlyBanner(byVersion);
+}
+
+function saveSession() {
+  // Only the owning tab may write. A read-only tab never touches storage → no clobber.
+  if (!state.perf || !amOwner) return;
+  try { localStorage.setItem(LS_KEY, JSON.stringify(snapshotState())); } catch(e) {}
+}
+
+// Read the stored v2 record (r94's own key only). Returns parsed object or null.
+function readStored() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (!saved) return null;
+    const data = JSON.parse(saved);
+    if (!data || !data.perf || data.perf.closed) return null;
+    return data;
+  } catch(e) { return null; }
+}
+
+// Load a performance object INTO state as paused/revisit (does NOT claim ownership).
+function adoptPerformance(data, { asPaused = true } = {}) {
+  state.perf = data.perf;
+  state.sessionStatus = 'paused';
+  if (!asPaused && data.sessionStatus) state.sessionStatus = data.sessionStatus;
+  // Close any dangling open session so timing is coherent on resume.
+  const sessions = state.perf.sessions;
+  if (sessions.length && !sessions[sessions.length-1].ended) sessions[sessions.length-1].ended = now();
+  state.elapsed = data.elapsed || 0;
+  state.perfName = data.perfName || (data.perf && data.perf.name) || '';
+  state.perfNote = data.perfNote || (data.perf && data.perf.note) || '';
+  state.journalDraft = data.journalDraft || '';
+  const nameI = document.getElementById('perf-name-input'); if (nameI) nameI.value = state.perfName;
+  const noteI = document.getElementById('perf-note-input'); if (noteI) noteI.value = state.perfNote;
+  // Restore the last cast's score into view (Option A — put me back) if present.
+  restoreLastScore();
+  updateAll();
+  updateSessionBar();
+}
+
+// Regenerate the last recorded cast's score from its stored dice, so resuming a
+// performance returns the artist to where they left off (deterministic from dice).
+function restoreLastScore() {
+  try {
+    if (!state.perf) return;
+    let last = null, count = 0;
+    state.perf.sessions.forEach(s => s.casts.forEach(c => { if (!c.type) { last = c; count++; } }));
+    if (!last || !last.die1 || !last.die2) return;
+    state.castIndex = count;
+    const s = resolveScore(last.die1, last.die2);
+    // Prefer the exact stored composition/prompt (override fidelity) over re-derived.
+    if (last.composition) s.composition = last.composition;
+    if (last.prompt) s.prompt = last.prompt;
+    state.score = s; state.die1 = last.die1; state.die2 = last.die2; state.hexNum = s.hexNum;
+    state.settled = true;
+    state.history = [{ ...s, castNum: state.castIndex }];
+  } catch(e) {}
+}
+
+// loadSession() is called at init. r94: do NOT silently adopt. Detect an existing
+// performance and present the take-over / leave-it dialog. If none, stay blank.
+function loadSession() {
+  const data = readStored();
+  if (!data) {
+    // No live record under r94's key → clean blank start; this tab can own on begin.
+    amOwner = true;
+    return;
+  }
+  // An existing performance is present. Offer explicit choice (no silent clobber).
+  const n = (data.perf.sessions || []).reduce((a,s)=>a + s.casts.filter(c=>!c.type).length, 0);
+  const nm = data.perf.name || 'untitled';
+  showModal('PERFORMANCE IN PROGRESS',
+    `A performance "${nm}" (${n} cast${n!==1?'s':''}) is active in this browser — possibly open in another tab.\n\nTake over here to continue it in this tab (other tabs become read-only), or leave it and start blank.`,
+    [
+      { label: 'leave it (start blank)', style: 'default', action: () => { amOwner = true; /* own a fresh blank; does not touch the stored record until a new perf begins */ amOwner = false; } },
+      { label: 'take over here', style: 'primary', action: () => { adoptPerformance(data, { asPaused: true }); claimOwnership(); } }
+    ]);
+  // Note: "leave it" leaves amOwner false so this blank tab won't overwrite the record;
+  // beginning a NEW performance here will claim ownership explicitly (see doBeginPerformance).
+}
+
+// ── Cross-tab takeover signalling ────────────────────────────────────────────
+if (bc) {
+  bc.onmessage = (ev) => {
+    const m = ev.data || {};
+    if (m.type === 'claim' && m.tabId !== TAB_ID) {
+      // Another tab claimed ownership. If we thought we owned it, stand down.
+      if (amOwner) goReadOnly(m.version);
+    }
+  };
+}
+// Fallback: storage event fires in OTHER tabs when the owner writes. If we are a
+// (former) owner and someone else wrote a record owned by a different tab, stand down.
+window.addEventListener('storage', (e) => {
+  if (e.key !== LS_KEY || !e.newValue) return;
+  try {
+    const d = JSON.parse(e.newValue);
+    if (amOwner && d.owner && d.owner.tabId && d.owner.tabId !== TAB_ID) goReadOnly(d.owner.version);
+  } catch(err) {}
+});
+
+// ── Read-only banner (shown in a superseded tab) ─────────────────────────────
+function showReadonlyBanner(byVersion) {
+  let el = document.getElementById('readonly-banner');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'readonly-banner';
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:300;background:#2a1a12;border-bottom:1px solid #c8a97e55;color:#e8d8c0;font-family:\'Courier New\',monospace;font-size:13px;letter-spacing:0.08em;padding:10px 20px;text-align:center;-webkit-font-smoothing:antialiased';
+    document.body.appendChild(el);
+  }
+  el.innerHTML = '⚠ This performance is now open in a newer tab' + (byVersion ? ' (' + byVersion + ')' : '') + '. This window is read-only — your work is safe in the other tab.';
+  el.style.display = 'block';
+  document.body.style.paddingTop = el.offsetHeight + 'px';
+}
+function hideReadonlyBanner() {
+  const el = document.getElementById('readonly-banner');
+  if (el) { el.style.display = 'none'; document.body.style.paddingTop = '0'; }
+}
+
+// ── Elapsed timer ─────────────────────────────────────────────────────────────
+
+setInterval(() => {
+  if (state.sessionStatus === 'active') {
+    state.elapsed++;
+    const el = document.getElementById('sess-status-display');
+    if (el) el.textContent = `session ${state.perf?.sessions?.length} · ${fmtElapsed(state.elapsed)}`;
+  }
+}, 1000);
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+
+// Single source of truth for the displayed version — the ONLY place the version
+// string lives. Set this to match the snapshot filename at each save.
+const FM_VERSION = 'r94';
+(function setVersionTags(){
+  const a = document.getElementById('version-tag');
+  const b = document.getElementById('about-version-tag');
+  if (a) a.textContent = FM_VERSION;
+  if (b) b.textContent = FM_VERSION;
+})();
+
+updateAll();
+loadSession();
+updateSessionBar();
+// Render input die octagons in their inactive state on load
+updateDieInput('d1');
+updateDieInput('d2');
+</script>
+</body>
+</html>

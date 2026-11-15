@@ -1,0 +1,435 @@
+FONTANA MIX — PERFORMANCE LOG
+────────────────────────────────────────────────
+PERFORMANCE: testFM radio picture #1 part 2
+OPENED: Aug 14, 2026 12:14 a.m.
+INTENTION: intention: let the machinic rigidity define the site
+
+────────────────────────────────────────────────
+SESSION 1  Aug 14, 2026 12:14 a.m. → 01:13 a.m.
+
+  ◈ [12:19 a.m.] "The hexagram represents a beam that is thick and heavy in the middle but too weak at the ends. This
+     is a condition that cannot last; it must be changed,
+     must pass, or misfortune will result." https://clovemedia.github.io/i_ching/I_Ching_Wilhelm_Baynes_Translation_Chrome.pdf 
+     
+     My painting is injected into a space of rigid indeterminacy. How do I respond? It seems necessary to forge ahead to take the grid as grounds for all that follows and see if it survives the obstinate perseverance of affect. I will draw it, but immediately begin to erase its formality.
+
+  — paused 20 hr 27 min (1227 min) —
+
+────────────────────────────────────────────────
+SESSION 2  Aug 14, 2026 09:40 p.m. → 11:04 p.m.
+
+  CAST 1  ☱☷ · no.45 · Gathering Together  [09:40 p.m.]
+  LANGUAGE: cultural artifact · surrender to indeterminacy · embodied intuition
+  IMAGE: interrupt the algorithm return · dissolve edges · deny the figure
+  PROCESS: begin with a single horizontal mark · allow one chance operation to override
+  COMPOSITION: rule of thirds — upper right node · rot 90° — vertical axis · dominant — fill 70–80% of plane
+  IMAGE BANK: 09_Image_9_straightened.png
+  SD: embodied intuition — interrupt the algorithm return — begin with a single horizontal mark.
+
+  ◈ [11:00 p.m.] The SD prompt elements offered: "embodied intuition — interrupt the algorithm return — begin with a single horizontal mark."
+
+  ◈ [11:01 p.m.] I find there is a need to move backward as well as forward. Does the instrument allow this?
+
+  — paused 0 min (0 min) —
+
+────────────────────────────────────────────────
+SESSION 3  Aug 14, 2026 11:04 p.m. → 11:13 p.m.
+
+    ✓ use-ratified → 09_Image_9_straightened.png · cast 1 [11:04 p.m.]
+
+  CAST 2  ☴☶ · no.53 · Development  [11:04 p.m.]
+  LANGUAGE: distributed cognition · imaginative capacity · anthropomorphic conceit
+  IMAGE: fragment and redistribute · interrupt the algorithm return · bleed into background
+  PROCESS: hold the ambiguity — do not resolve · continue past the point of comfort
+  COMPOSITION: golden ratio — primary zone · rot −22° — contrary diagonal · dominant — fill 70–80% of plane
+  IMAGE BANK: 05_Image_5_straightened.png
+  SD: anthropomorphic conceit — fragment and redistribute — hold the ambiguity — do not resolve.
+
+  ◈ [11:05 p.m.] Again, I cast, but no not where I go. Ideal conditions.
+
+  — paused 0 min (0 min) —
+
+────────────────────────────────────────────────
+SESSION 4  Aug 14, 2026 11:13 p.m. → Aug 15, 2026 12:21 a.m.
+
+  — image bank committed [11:13 p.m.]
+
+  CAST 3  ☰☴ · no.44 · Coming to Meet  [11:14 p.m.]
+  LANGUAGE: refound object · surface memory · intensive difference
+  IMAGE: deny the figure · erode toward center · mirror horizontal axis
+  PROCESS: let chance determine the palette · pause at the moment of recognition
+  COMPOSITION: golden ratio — secondary zone · rot −15° — contrary tilt · minor — fill 15–30% of plane
+  IMAGE BANK: 01_Image_straightened.png
+  SD: refound object — mirror horizontal axis — let chance determine the palette.
+
+  ◈ [11:15 p.m.] SD prompt directive "refound object — mirror horizontal axis — let chance determine the palette." 01_Image_straightened.png
+
+  ◈ [11:27 p.m.] It's 11:26 August 14 as I write this note. Just a test to check the timestamping across midnight. I'll be back.
+
+  ◈ [12:20 a.m.] I wonder what happens to an unsaved but still current journal entry over the time shift. I would assume it takes on the new time, i.e. current time when saved. I will close this note without saving to the log.
+     So here I am past midnight, saving the journal now.
+
+  ◈ [12:20 a.m.] Another entry.
+
+    ✓ use-ratified → 01_Image_straightened.png · cast 1 [12:20 a.m.]
+
+  CAST 4  ☱☱ · no.58 · The Joyous  [12:20 a.m.]
+  LANGUAGE: pre-articulate state · gestural residue · the almost-known
+  IMAGE: pull back to mark · deny the figure · recover the underpainting
+  PROCESS: pause at the moment of recognition · duration: until the hand disagrees with the algorithm
+  COMPOSITION: rule of thirds — upper right node · rot −45° — contrary maximum diagonal · fragment — show edge only
+  IMAGE BANK: 09_Image_9_straightened.png
+  SD: the almost-known — recover the underpainting — duration: until the hand disagrees with the algorithm.
+
+  ◈ [12:20 a.m.] A new cast.
+
+  — paused 0 min (0 min) —
+
+────────────────────────────────────────────────
+SESSION 5  Aug 15, 2026 12:21 a.m. → 12:46 a.m.
+
+    ✓ use-ratified → 09_Image_9_straightened.png · cast 2 [12:21 a.m.]
+
+  CAST 5  ☶☵ · no.4 · Youthful Folly  [12:21 a.m.]
+  LANGUAGE: convergent pattern · distributed cognition · gestural residue
+  IMAGE: interrupt the algorithm return · push toward abstraction · obscure the known mark
+  PROCESS: work in silence for the first pass · respond only to what was not intended
+  COMPOSITION: diagonal thrust — upper to lower · rot −7° — contrary unease · mid-weight — fill 40–60% of plane
+  IMAGE BANK: 02_Image_1_straightened.png
+  SD: gestural residue — interrupt the algorithm return — work in silence for the first pass.
+
+  ◈ [12:21 a.m.] A new cast AFTER pausing and restarting
+
+  — paused 9 days 0 hr 43 min (13003 min) —
+
+────────────────────────────────────────────────
+SESSION 6  Aug 24, 2026 01:29 a.m. → 02:02 a.m.
+
+  CAST 6  ☱☶ · no.31 · Influence  [01:29 a.m.]
+  LANGUAGE: refound object · mode collapse · opacity of intention
+  IMAGE: dissolve edges · invert palette · erode toward center
+  PROCESS: begin again from the residue · document the feeling before the image
+  COMPOSITION: radical decentering — far edge · rot 7° — slight unease · dominant — fill 70–80% of plane
+  IMAGE BANK: Scan from 2026-08-10 01_51_22 PM (assumed image 1).jpg (manual override)
+  SD: refound object — erode toward center — begin again from the residue.
+
+    ↻ override-trial → Scan from 2026-08-10 01_51_22 PM (assumed image 1).jpg (was Scan from 2026-08-20 05_20_02 PM.jpg) · cast 1 [provisional] [01:29 a.m.]
+
+  ◈ [01:54 a.m.] The machine teaches me how to use it. I think of Heidegger's inversion of science and tool. Placing an image, I discover where it might lead. A garden of forking paths.
+
+  ◈ [02:01 a.m.] I reflect on and draw from the prompt "directive" breaking it into larger pieces. I write "The alreadymade erodes towards centre. Like Schwitters’s Merz, the image must begin again from its residue."
+
+  — paused 17 hr 18 min (1038 min) —
+
+────────────────────────────────────────────────
+SESSION 7  Aug 24, 2026 07:20 p.m. → Aug 25, 2026 02:26 a.m.
+
+  ◈ [07:25 p.m.] I preface this cast with an anecdote that arose from the SD transformation of the previous session (image 24Aug2026_01.png):
+     "Faced with a need for a decision, even in the midst of indeterminacy, the curatorial impulse chooses a narrative more than a picture. The machine forces a grid into composition; I will play along with the serendipitous emergence of that angularity in the SD output, not my usual aesthetic, but what is usual in the sublime? Perhaps it is the response of pushing absurdity to its limits; perhaps it is: if I step aside, what else have you got to show me?"
+
+  CAST 7  ☳☲ · no.55 · Abundance  [07:26 p.m.]
+  LANGUAGE: what the hand knows · refusal to resolve · mode collapse
+  IMAGE: pull back to mark · overlay at low opacity · dissolve edges
+  PROCESS: use the algorithm output as ground, not figure · respond only to what was not intended
+  COMPOSITION: compressed — near top edge · rot 7° — slight unease · bleed — exceed frame on one side
+  IMAGE BANK: Scan from 2026-08-10 01_54_42 PM (a 2).jpg (manual override)
+  SD: what the hand knows — overlay at low opacity — use the algorithm output as ground, not figure.
+
+    ↻ override-trial → Scan from 2026-08-10 01_54_42 PM (a 2).jpg (was Scan from 2026-08-20 05_20_02 PM.jpg) · cast 1 [provisional] [07:26 p.m.]
+
+  ◈ [11:10 p.m.] I am manually selecting from the image bank, deliberately choosing rather than by chance, using only the chance-derived compositional derivations to disrupt the image. I am drawing from a collection of ten cycles of an autographic painting I am developing (oil on canvas, 10" x 8"), each image a step in a temporal sequence, some with more noticeable change, others with less. I think of these as aesthetic seeds in the larger, accumulating composition, and they will deterministically adopt the prior parameters of the first SD generation (except for prompt variation and the source image), thus resisting individual, preferential curatorial decisions across a range of outputs. I am forcing a limitation upon myself in this indeterminate space. The same set of parameters that generated the first layer of the composition in this performance will be used for all subsequent generations of the first set of autographic input images. When all ten have been used, or the master canvas is fully covered (whichever comes first), I will shift to photographing and processing only iterations of the master. In this way, I seek to hold to a framework for navigating an unknown future state.
+
+  — paused 8 hr 51 min (531 min) —
+
+────────────────────────────────────────────────
+SESSION 8  Aug 25, 2026 11:17 a.m. → 11:17 a.m.
+
+  — paused 11 hr 20 min (680 min) —
+
+────────────────────────────────────────────────
+SESSION 9  Aug 25, 2026 10:37 p.m. → 11:58 p.m.
+
+  ◈ [10:43 p.m.] A side trip, performance as development: I find the instrument has no way yet to revisit a previous cast. It turns out I had thrown 4 and 3 for Hexagram 55, and have now determined that and reentered them to arrive again at the place I was; the determinate-indeterminacy works. It suggests interesting ideas for series development, as the image bank could be updated and changed while maintaining the exact same cast sequence if I wished. Images become palette. I will carry on from this short aside with where I was.
+
+  — image bank committed [10:44 p.m.]
+
+  CAST 8  ☳☲ · no.55 · Abundance  [10:44 p.m.]
+  LANGUAGE: what the hand knows · refusal to resolve · mode collapse
+  IMAGE: pull back to mark · overlay at low opacity · dissolve edges
+  PROCESS: use the algorithm output as ground, not figure · respond only to what was not intended
+  COMPOSITION: compressed — near top edge · rot 7° — slight unease · bleed — exceed frame on one side
+  IMAGE BANK: Scan from 2026-08-10 01_54_42 PM (a 2).jpg (manual override)
+  SD: what the hand knows — overlay at low opacity — use the algorithm output as ground, not figure.
+
+    ↻ override-trial → Scan from 2026-08-10 01_54_42 PM (a 2).jpg (was Scan from 2026-08-20 05_20_02 PM 1 (a 7).jpg) · cast 4 [provisional] [10:44 p.m.]
+
+  ◈ [04:14 a.m.] Again, distracted by research. I video screen capture the scrolling score like a hungry ghost consuming it line by lie. 'n'
+     night
+
+  — paused 10 hr 14 min (614 min) —
+
+────────────────────────────────────────────────
+SESSION 10  Aug 26, 2026 10:12 a.m. → 09:36 p.m.
+
+  ◈ [10:31 a.m.] Continuing with a deliberately chosen image, the next photo taken in the sequence of the small painting's development: "Scan from 2026-08-10 01_54_42 PM (a 2).jpg"
+
+  — image bank committed [10:32 a.m.]
+
+  CAST 9  ☳☲ · no.55 · Abundance  [10:32 a.m.]
+  LANGUAGE: what the hand knows · refusal to resolve · mode collapse
+  IMAGE: pull back to mark · overlay at low opacity · dissolve edges
+  PROCESS: use the algorithm output as ground, not figure · respond only to what was not intended
+  COMPOSITION: compressed — near top edge · rot 7° — slight unease · bleed — exceed frame on one side
+  IMAGE BANK: Scan from 2026-08-12 07_42_49 PM.jpg
+  SD: refusal to resolve — overlay at low opacity — respond only to what was not intended.
+
+  ◈ [11:47 a.m.] SD PROMPT DIRECTIVE ───────
+     "refusal to resolve — overlay at low opacity — respond only to what was not intended."
+     I reflect on this, remembering how, as a student, we might be asked to draw "refusal" or any number of metaphors the instructor probably spontaneously offered (as here?) on that particular day, in that place, at that time. Perhaps they had driven to work under pressure from a grant application, a new birth, a surgery, and the distraction of a beautiful day. "Draw temporality," and off we'd all go. All metaphors tie to their situatedness. I am situated in an alliance with divergence, limited resolution, and the consideration of what is not said and not intended. I offer the unborn image: "A space that is offset from location, reflecting the resolute detachment of the sun at midday. The image is what remains when the time of action has passed.”
+
+  ◈ [12:28 p.m.] I browse through the generated images. Although I know the parameters I could use to generate only the image I have decided to 'follow', I still generate the full grid of 80 images to get a visible sense of the latent space that I have chosen to make invisible. There is a guilt of energy attached to every gesture in this space. 
+     There are definitely images that a curatorial response would have chosen first, but I will maintain my rule for this performance, allowing for an anticipatory aesthetic that extends beyond preference into blind faith in emergence. But perhaps not entirely blind. The "co-creative stance" demands stepping back. 
+     The SD image, the same parameters except for the source image and prompt: 00069-3741051873.png 
+     Surely, the prompt is still the most radical confrontation with indeterminacy.
+
+  ◈ [12:40 p.m.] I've just realized the generated images will all have the same default naming. This is awkward and necessitates tracking the folder name (dated, sometimes with a sequence-of-the-day number suffix). This last generation is in "2026-08-24_01 Hex55".
+
+  ◈ [12:47 p.m.] Immediately, I realize a mistake, and the record holds me to the transparency of honesty. The current generation is actual in "2026-08-26_01 Hex55". An astute analysis of the log would reveal a date conflict, but transparency benefits the tacit as well.
+
+  ◈ [01:10 p.m.] Placing the generated element in the master composition, I encounter a border of another sort: "scale bleed — exceed frame on one side". Which side? Of the entity to be placed, or the side of the comp? I choose the thing I hold, and, accepting the placement suggestion, this cuts off the entire upper edge of the placed image (which, in any case, would 'exceed' the comp frame with any small angular amount of its content, at the suggested orientation and position). Scale is not included in this cast, but responding to "use the algorithm output as ground" and its semantic collision with responding "only to what was not intended", I scale it from its most minimal loss of contact at the upper comp edge to where it just touches the left edge of the comp. Scale was not intended, but I have given it intention.
+
+  ◈ [01:15 p.m.] I want to remember to keep the current cast open until the comp has been acted upon. This way, I can record results happening outside this instrument, a remaining issue, as no one is fully present all the time. Absence is a process of another kind taking place in an interlined subjectivity.
+     There should be some notes about effective use of the tool added to the instructions, even if the artist is inclined to ignore them. Perhaps even a reminder when closing a session.
+
+  ◈ [01:40 p.m.] This session ends with "26Aug2026_01.jpg"
+
+    ✓ use-ratified → Scan from 2026-08-12 07_42_49 PM.jpg · cast 1 [01:41 p.m.]
+
+  CAST 10  ☷☲ · no.36 · Darkening of the Light  [01:41 p.m.]
+  LANGUAGE: anthropomorphic conceit · divergent possibility · seduction of the tool
+  IMAGE: let the error stand · introduce noise · deny the figure
+  PROCESS: begin with a single horizontal mark · withhold for three iterations before feeding
+  COMPOSITION: visual weight at periphery · rot 15° — perceptible tilt · mid-weight — fill 40–60% of plane
+  IMAGE BANK: Scan from 2026-08-12 07_37_40 PM (a 3).jpg (manual override)
+  SD: seduction of the tool — deny the figure — begin with a single horizontal mark.
+
+  — bank-remove → Scan from 2026-08-10 01_54_42 PM (a 2).jpg [01:41 p.m.]
+
+    ↻ override-trial → Scan from 2026-08-20 05_20_02 PM.jpg (was Scan from 2026-08-10 01_51_22 PM (assumed image 1).jpg) · cast 2 [provisional] [01:43 p.m.]
+    ↻ override-trial → Scan from 2026-08-10 01_51_22 PM (assumed image 1).jpg (was Scan from 2026-08-20 05_20_02 PM.jpg) · cast 2 [provisional] [01:44 p.m.]
+    ↻ override-trial → 18Aug2026_0609pm (a 8).jpg (was Scan from 2026-08-10 01_51_22 PM (assumed image 1).jpg) · cast 2 [provisional] [01:44 p.m.]
+    ↻ override-trial → Scan from 2026-08-10 01_51_22 PM (assumed image 1).jpg (was 18Aug2026_0609pm (a 8).jpg) · cast 2 [provisional] [01:44 p.m.]
+    ↻ override-trial → Scan from 2026-08-12 07_37_40 PM (a 3).jpg (was Scan from 2026-08-10 01_51_22 PM (assumed image 1).jpg) · cast 2 [provisional] [01:44 p.m.]
+
+  ↳ I have not explored the affordance of the CAST NOTE. I'm now thinking it might be a good place to respond to the scorecard, particularly the prompt "directive" - a kind of immediacy and presence is offered by this note and seems integrated with the tool more so than the stepping back, reflective autoethnographic space of the journal. So, I want to comment here on "the seduction of the tool - deny the figure - begin with a single horizontal mark."
+     The suggestion seems contrary: a seduction coupled with a denial, then a definite instruction. Given the semantic framing, that seduction is localized as "language", denial as "image", and beginning with a specific, I move to dance with meaning. The seduction of impossible denial and a figure expressed as a singular horizontality; an impassable landscape that calls to relentless travelling.
+
+  ↳ ... and what does "withhold for three iterations before feeding" even mean? It seems to suggest _as of this session_ do not send the source through the SD transformation; of course, the next cast could potentially cancel this directive with an explicit "proceed," but presumably the performer would otherwise keep in mind that the next three casts would otherwise be composed with the unaltered source image. OK, I'll adopt that interpretation, knowing that every decision is transient or can be overridden. 
+     In this research report, I wish to make a note that the cast note may be a useful tool for initiating a typology of the sheet terminology - an interpretive guide, a project that awaits me.
+
+  ◈ [07:56 p.m.] ── SD PROMPT DIRECTIVE ───────
+     seduction of the tool — deny the figure — begin with a single horizontal mark.
+     [I propose using the CAST NOTE feature for score reflections.]
+
+  ◈ [09:36 p.m.] From this session, I choose the SD transform 00069-3741051873.png (in folder 2026-08-26_02 Hex36). But now the question of layering physical media arises. Does the new layer 'replace' (hide) what is below it? I decide  will use Photoshop's 'Multiply' blend mode so that the layers build on each other in terms of visual density.
+
+  — paused 3 days 15 hr 29 min (5249 min) —
+
+────────────────────────────────────────────────
+SESSION 11  Aug 30, 2026 01:05 p.m. → Aug 31, 2026 10:40 a.m.
+
+  — image bank committed [01:07 p.m.]
+
+  CAST 11  ☱☶ · no.31 · Influence  [01:07 p.m.]
+  LANGUAGE: refound object · mode collapse · opacity of intention
+  IMAGE: dissolve edges · invert palette · erode toward center
+  PROCESS: begin again from the residue · document the feeling before the image
+  COMPOSITION: radical decentering — far edge · rot 7° — slight unease · dominant — fill 70–80% of plane
+  IMAGE BANK: Scan from 2026-08-12 07_54_53 PM (a 4).jpg (manual override)
+  SD: opacity of intention — invert palette — begin again from the residue.
+
+    ↻ override-trial → 18Aug2026_0609pm (a 8).jpg (was Scan from 2026-08-18 06_08_30 PM (a 5).jpg) · cast 1 [provisional] [01:07 p.m.]
+    ↻ override-trial → Scan from 2026-08-18 06_08_30 PM (a 5).jpg (was 18Aug2026_0609pm (a 8).jpg) · cast 1 [provisional] [01:07 p.m.]
+    ↻ override-trial → 18Aug2026_0609pm (a 8).jpg (was Scan from 2026-08-18 06_08_30 PM (a 5).jpg) · cast 1 [provisional] [01:07 p.m.]
+    ↻ override-trial → Scan from 2026-08-12 07_54_53 PM (a 4).jpg (was 18Aug2026_0609pm (a 8).jpg) · cast 1 [provisional] [01:07 p.m.]
+
+  ◈ [01:11 p.m.] The current non-display of file names in the image bank really disrupts the flow: Choose blindly, check the name in Score (which, if long, still doesn't reveal the name), change the image, try again… if one chooses to use the instrument in a non-random way (sequential images), it is awkward. You could rename images sequentially, but that in itself is a frustrating disruption.
+
+  ◈ [01:15 p.m.] Moreover, for some strange reason (investigate this), recently the tool has been piling up images in one corner of the master composition. So, to work around this and use the tool (as an experiment) in a more deterministic way, I need to recast. Which means _again_ hunting through images (see previous journal entry).
+
+    ✓ use-ratified → Scan from 2026-08-12 07_54_53 PM (a 4).jpg · cast 1 [01:15 p.m.]
+
+  CAST 12  ☵☴ · no.48 · The Well  [01:15 p.m.]
+  LANGUAGE: tacit ambiguity · imaginative capacity · anthropomorphic conceit
+  IMAGE: amplify grain · let the error stand · erode toward center
+  PROCESS: let chance determine the palette · end when the ambiguity becomes unbearable
+  COMPOSITION: compressed — near top edge · rot −45° — contrary maximum diagonal · mid-weight — fill 40–60% of plane
+  IMAGE BANK: Scan from 2026-08-12 07_37_40 PM (a 3).jpg (manual override)
+  SD: tacit ambiguity — amplify grain — let chance determine the palette.
+
+    ↻ override-trial → Scan from 2026-08-18 06_08_30 PM (a 5).jpg (was 18Aug2026_0609pm (a 8).jpg) · cast 2 [provisional] [01:15 p.m.]
+    ↻ override-trial → Scan from 2026-08-20 05_20_02 PM 1 (a 7).jpg (was Scan from 2026-08-18 06_08_30 PM (a 5).jpg) · cast 2 [provisional] [01:16 p.m.]
+    ↻ override-trial → 18Aug2026_0609pm (a 8).jpg (was Scan from 2026-08-20 05_20_02 PM 1 (a 7).jpg) · cast 2 [provisional] [01:16 p.m.]
+    ↻ override-trial → Scan from 2026-08-12 07_37_40 PM (a 3).jpg (was 18Aug2026_0609pm (a 8).jpg) · cast 2 [provisional] [01:16 p.m.]
+    ↻ override-trial → 18Aug2026_0609pm (a 8).jpg (was Scan from 2026-08-12 07_37_40 PM (a 3).jpg) · cast 2 [provisional] [01:16 p.m.]
+    ↻ override-trial → Scan from 2026-08-20 05_20_02 PM 1 (a 7).jpg (was 18Aug2026_0609pm (a 8).jpg) · cast 2 [provisional] [01:16 p.m.]
+    ↻ override-trial → Scan from 2026-08-12 07_37_40 PM (a 3).jpg (was Scan from 2026-08-20 05_20_02 PM 1 (a 7).jpg) · cast 2 [provisional] [01:17 p.m.]
+
+  ◈ [11:29 p.m.] I place Scan from 2026-08-12 07_37_40 PM (a 3).jpg (override) in the master comp, positioning it and rotating it; to this point, I more or less follow the suggestions. But then I come to the image directives "amplify grain", "let the error stand", and "erode toward center." Thefirst thing I think of is, well, I can do those things with filters and masks in Photoshop. I get up to make coffee. I need to step back. The Process directives nag at me: "let chance determine the palette" and "end when the ambiguity becomes unbearable". I begin imagining using another layer of chance operations to somehow manipulate the values of a Gradient Overlay, perhaps, but then realize, in the midst of grinding beans, that using a tool in a deterministic way does not mean the same thing as using it in an interpretable way. I can feed the directives into a generative prompt, step back and let indeterminacy have its way. Act like the arms of chance, not the mind. The mind is not random; even this is a decision.
+
+  ↳ When does ambiguity become unbearable? There is a suggestion of a limit, a boundary condition we wish to cross but are personally unable to. An awareness, a confession of our own inability to change the condition of being.
+
+  ◈ [11:46 p.m.] ... which is what I have been doing. Perhaps without explaining to myself why.
+     ── SD PROMPT DIRECTIVE ───────
+     tacit ambiguity — amplify grain — let chance determine the palette.
+     so, 
+     "Take the negative space in the image and use it to generate the sublime noise of an autumn thunderstorm. Let chance determine the palette."
+
+  ◈ [12:18 a.m.] Watching the slow generation of SD images in parameter sequences is very instructive. The machine is built to speed things up, but a lot of its benefit comes from slowing things down. Who sits and watches renders? Well, maybe a lot of artists do, painters perhaps. There's a strongly pareidolic phenomenon at play that is not simply anthropomorphic associationism, which is pretty much guaranteed; we see faces before ( x days - check; under 3 months has been shown, I believe). But these sequences emote not just faces but whole worlds. I believe the 'moving' generative image evokes this imaginative interpretation. One must let go to see it; otherwise, we have the conventional theory that ambiguity is a psychological problem. I'm wondering if such fears grow from a capitalist model where avoiding ambiguity is an entirely quantitative boundary condition (which is nonetheless disputed in courts all over the world). We build that fear into our very perception. But it isn't necessarily real. I'm starting to think, looking at these proto-paintings (which SD knows nothing about), that this ambiguity engine should be protected. "Alignment" (to be achieved, of course, as always, by more, more, more, bigger, bigger, bigger - squash out potentiality with ignorance) might be, so far, about control of the masses, not creativity.
+
+  ◈ [12:23 a.m.] Note to self: try animation blends of about 30sec cross-dissolves, with CFG scale on one layer and Denoising on the other (from one of the sequences in this performance). Try the Multiply blend mode. Then time-reverse one of the layers.
+
+  ◈ [01:17 a.m.] A thought about negative space in temporal learning: I realize I have been overworking the surface. When placing a printed layer set in a blend mode over another, it is more interesting to only physically layer the changed portions. It seems so obvious now that it is interesting to wonder why I was controlled by the tiling of the image (into cutting out rectangles). The curse of the grid, identified and accepted at the beginning, appears to have taken transparent control. Realizing this, I start cutting up the prints; even tearing and sanding them is a possibility again. These things emerge out of the ambiguity of slowing down.
+
+    ✓ use-ratified → Scan from 2026-08-12 07_37_40 PM (a 3).jpg · cast 2 [01:17 a.m.]
+
+  CAST 13  ☴☰ · no.43 · Breakthrough  [01:17 a.m.]
+  LANGUAGE: imaginative capacity · opacity of intention · intensive difference
+  IMAGE: invert palette · deny the figure · obscure the known mark
+  PROCESS: reject the first return; repeat the gesture · pause at the moment of recognition
+  COMPOSITION: Gestalt closure — incomplete form · rot −30° — contrary strong diagonal · dominant — fill 70–80% of plane
+  IMAGE BANK: Scan from 2026-08-20 05_20_02 PM 1 (a 7).jpg
+  SD: intensive difference — deny the figure — pause at the moment of recognition.
+
+    ✓ use-ratified → Scan from 2026-08-20 05_20_02 PM 1 (a 7).jpg · cast 3 [01:17 a.m.]
+
+  CAST 14  ☷☱ · no.45 · Gathering Together  [01:17 a.m.]
+  LANGUAGE: tacit ambiguity · anthropomorphic conceit · gestural residue
+  IMAGE: mirror horizontal axis · overlay at low opacity · dissolve edges
+  PROCESS: work in silence for the first pass · duration: until the hand disagrees with the algorithm
+  COMPOSITION: visual weight at periphery · rot 7° — slight unease · dominant — fill 70–80% of plane
+  IMAGE BANK: Scan from 2026-08-12 07_54_53 PM (a 4).jpg (manual override)
+  SD: anthropomorphic conceit — dissolve edges — duration: until the hand disagrees with the algorithm.
+
+  ◈ [01:38 a.m.] I just found myself wishing for a 'back' (and then presumably 'forward ') button in the score. Using the tool in a semi-deterministic way (is there really any other option?) affords a re-awareness of the transformation of metaphor; here, the notion of navigating time as a series of controlled, repeatable events. I'm hunting around the cast space because I want to fill a particular region with only the size, orientation, and SD inference playing into the comp. I'm not sure yet how this is different from taking the prompt only (albeit the one that matches the preferred location) and just placing the image how I want. It is different, and I want to think about how.
+
+    ↻ override-trial → Scan from 2026-08-20 05_18_38 PM (a 6).jpg (was 18Aug2026_0609pm (a 8).jpg) · cast 4 [provisional] [01:44 a.m.]
+    ↻ override-trial → 18Aug2026_0609pm (a 8).jpg (was Scan from 2026-08-20 05_18_38 PM (a 6).jpg) · cast 4 [provisional] [01:44 a.m.]
+    ↻ override-trial → Scan from 2026-08-12 07_42_49 PM.jpg (was 18Aug2026_0609pm (a 8).jpg) · cast 4 [provisional] [01:44 a.m.]
+    ↻ override-trial → 18Aug2026_0609pm (a 8).jpg (was Scan from 2026-08-12 07_42_49 PM.jpg) · cast 4 [provisional] [01:44 a.m.]
+    ↻ override-trial → Scan from 2026-08-20 05_18_38 PM (a 6).jpg (was 18Aug2026_0609pm (a 8).jpg) · cast 4 [provisional] [01:45 a.m.]
+    ↻ override-trial → 18Aug2026_0609pm (a 8).jpg (was Scan from 2026-08-20 05_18_38 PM (a 6).jpg) · cast 4 [provisional] [01:45 a.m.]
+    ↻ override-trial → Scan from 2026-08-20 05_18_38 PM (a 6).jpg (was 18Aug2026_0609pm (a 8).jpg) · cast 4 [provisional] [01:45 a.m.]
+    ↻ override-trial → 18Aug2026_0609pm (a 8).jpg (was Scan from 2026-08-20 05_18_38 PM (a 6).jpg) · cast 4 [provisional] [01:45 a.m.]
+    ↻ override-trial → Scan from 2026-08-20 05_18_38 PM (a 6).jpg (was 18Aug2026_0609pm (a 8).jpg) · cast 4 [provisional] [01:45 a.m.]
+    ↻ override-trial → Scan from 2026-08-12 07_42_49 PM.jpg (was Scan from 2026-08-20 05_18_38 PM (a 6).jpg) · cast 4 [provisional] [01:45 a.m.]
+    ↻ override-trial → Scan from 2026-08-18 06_08_30 PM (a 5).jpg (was Scan from 2026-08-12 07_42_49 PM.jpg) · cast 4 [provisional] [01:45 a.m.]
+    ↻ override-trial → Scan from 2026-08-20 05_20_02 PM.jpg (was Scan from 2026-08-18 06_08_30 PM (a 5).jpg) · cast 4 [provisional] [01:45 a.m.]
+    ↻ override-trial → Scan from 2026-08-12 07_37_40 PM (a 3).jpg (was Scan from 2026-08-20 05_20_02 PM.jpg) · cast 4 [provisional] [01:46 a.m.]
+    ↻ override-trial → Scan from 2026-08-20 05_20_02 PM 1 (a 7).jpg (was Scan from 2026-08-12 07_37_40 PM (a 3).jpg) · cast 4 [provisional] [01:46 a.m.]
+    ↻ override-trial → Scan from 2026-08-12 07_54_53 PM (a 4).jpg (was Scan from 2026-08-20 05_20_02 PM 1 (a 7).jpg) · cast 4 [provisional] [01:46 a.m.]
+
+  ◈ [01:54 a.m.] "anthropomorphic conceit — dissolve edges — duration: until the hand disagrees with the algorithm."
+     becomes "an arrogant monkey dissolves at the edges until the body disagrees"
+     It's late.
+
+  — paused 6 hr 11 min (371 min) —
+
+────────────────────────────────────────────────
+SESSION 12  Aug 31, 2026 04:51 p.m. → 09:43 p.m.
+
+  CAST 15  ☴☶ · no.53 · Development  [04:51 p.m.]
+  LANGUAGE: distributed cognition · imaginative capacity · anthropomorphic conceit
+  IMAGE: fragment and redistribute · interrupt the algorithm return · bleed into background
+  PROCESS: hold the ambiguity — do not resolve · continue past the point of comfort
+  COMPOSITION: golden ratio — primary zone · rot −22° — contrary diagonal · dominant — fill 70–80% of plane
+  SD: distributed cognition — fragment and redistribute — continue past the point of comfort.
+
+  ◈ [08:03 p.m.] The first phase of the performance completes in the early hours of this day. The earlier guideline I established with myself- that the canvas would be full or all the sources would be used was reached with only four images, albeit after many iterations of exploring the instrument and many anecdotal notes. It has been a development, and interestingly, what can I arrive at? 
+     ䷴
+     ☴ ☶ · no. 53
+     Development
+
+  CAST 16  ☵☱ · no.60 · Limitation  [08:03 p.m.]
+  LANGUAGE: seduction of the tool · the almost-known · opacity of intention
+  IMAGE: accumulate layers · pull back to mark · feed the residue back
+  PROCESS: hold the ambiguity — do not resolve · reject the first return; repeat the gesture
+  COMPOSITION: diagonal thrust — upper to lower · rot −30° — contrary strong diagonal · dominant — fill 70–80% of plane
+  SD: seduction of the tool — pull back to mark — reject the first return; repeat the gesture.
+
+  ◈ [08:10 p.m.] ䷻
+     ☵ ☱ · no. 60
+     Limitation
+     [pass]
+     I am now deciding, in the interests of exploring the physical space of the painting, choosing casts that map into unpainted regions.
+
+  CAST 17  ☲☰ · no.14 · Great Possession  [08:43 p.m.]
+  LANGUAGE: pre-articulate state · refusal to resolve · surrender to indeterminacy
+  IMAGE: invert palette · push toward abstraction · amplify grain
+  PROCESS: work in silence for the first pass · document the feeling before the image
+  COMPOSITION: off-balance — resist correction · rot −7° — contrary unease · minor — fill 15–30% of plane
+  SD: surrender to indeterminacy — amplify grain — work in silence for the first pass.
+
+  CAST 18  ☰☴ · no.44 · Coming to Meet  [08:43 p.m.]
+  LANGUAGE: refound object · surface memory · intensive difference
+  IMAGE: deny the figure · erode toward center · mirror horizontal axis
+  PROCESS: let chance determine the palette · pause at the moment of recognition
+  COMPOSITION: golden ratio — secondary zone · rot −15° — contrary tilt · minor — fill 15–30% of plane
+  SD: refound object — erode toward center — pause at the moment of recognition.
+
+  CAST 19  ☵☶ · no.39 · Obstruction  [08:43 p.m.]
+  LANGUAGE: convergent pattern · pre-articulate state · the almost-known
+  IMAGE: bleed into background · obscure the known mark · dissolve edges
+  PROCESS: reject the first return; repeat the gesture · end when the ambiguity becomes unbearable
+  COMPOSITION: rule of thirds — lower left node · rot −30° — contrary strong diagonal · dominant — fill 70–80% of plane
+  SD: convergent pattern — bleed into background — end when the ambiguity becomes unbearable.
+
+  CAST 20  ☷☴ · no.46 · Pushing Upward  [08:43 p.m.]
+  LANGUAGE: gestural residue · mode collapse · seduction of the tool
+  IMAGE: deny the figure · push toward abstraction · amplify grain
+  PROCESS: surrender one element to the algorithm entirely · introduce a contradiction between gesture and prompt
+  COMPOSITION: dead centre — maximum symmetry · rot −30° — contrary strong diagonal · mid-weight — fill 40–60% of plane
+  SD: seduction of the tool — push toward abstraction — surrender one element to the algorithm entirely.
+
+  CAST 21  ☷☶ · no.15 · Modesty  [08:43 p.m.]
+  LANGUAGE: intensive difference · anthropomorphic conceit · surface memory
+  IMAGE: hold one gesture fixed · bleed into background · resist resolution
+  PROCESS: let chance determine the palette · withhold for three iterations before feeding
+  COMPOSITION: off-balance — resist correction · rot 90° — vertical axis · fragment — show edge only
+  SD: intensive difference — resist resolution — let chance determine the palette.
+
+  CAST 22  ☵☰ · no.5 · Waiting  [08:43 p.m.]
+  LANGUAGE: seduction of the tool · the uncanny return · pre-conceptual gesture
+  IMAGE: bleed into background · recover the underpainting · push toward abstraction
+  PROCESS: let chance determine the palette · introduce a contradiction between gesture and prompt
+  COMPOSITION: off-balance — resist correction · rot −22° — contrary diagonal · fragment — show edge only
+  SD: the uncanny return — bleed into background — let chance determine the palette.
+
+  ◈ [08:46 p.m.] So,...I choose this upper right region.
+     ䷄
+     ☵ ☰ · no. 5
+     Waiting䷄
+     Curiously, the same rotation as the last chosen position.
+     ── SD PROMPT DIRECTIVE ───────
+     the uncanny return — bleed into background — let chance determine the palette.
+     So, 
+     The uncanny return of images past, a memory of peace where today chance determines our colours. Heritage is mediated.
+
+  ◈ [09:43 p.m.] Having painted over the master comp and running that through FM and SD, I choose the generated image 2026-08-31 Hex5 00061-3741051873.png as the next composited layer. Several occurrences intersect: I choose qualitatively from the generated grid, letting curatorial preference enter, and, given no scale suggestion, I choose to fill the major portion of the remaining unpainted region. This composite finally hit a mark. I am released; I will paint over this image as a study, wholly free of the machine. An image has emerged from co-creative exchange that would not otherwise have otherwise been conceived of, and it is of sufficient affect that I am able to step back from the mediation and into the self again.
+
+  — paused 51 days 1 hr 17 min (73517 min) —
+
+────────────────────────────────────────────────
+SESSION 13  Oct 21, 2026 11:00 p.m. → Nov 15, 2026 12:39 a.m.
+
+  CAST 23  ☳☷ · no.16 · Enthusiasm  [11:00 p.m.]
+  LANGUAGE: divergent possibility · refusal to resolve · refound object
+  IMAGE: introduce noise · collide two opposing gestures · allow the drift
+  PROCESS: end when the ambiguity becomes unbearable · begin with a single horizontal mark
+  COMPOSITION: rule of thirds — upper right node · rot 15° — perceptible tilt · mid-weight — fill 40–60% of plane
+  SD: divergent possibility — collide two opposing gestures — end when the ambiguity becomes unbearable.
+
+  ◈ [11:05 p.m.] A test cast of the reactivated performance. Prior to may last restart of Edge (this entry), I had the browser open to this same tab and cast several times as I was examining the behaviour of the Composition window image scale parameter. That session started my current chat with Claude about scaling. Perhaps this performance will survive, but it seems the newly extended version doesn't open this performance by default, as prior versions did.
+
+────────────────────────────────────────────────
+23 casts total
