@@ -81,9 +81,13 @@ Adaptation is anticipated and welcome. If you reconfigure the vocabulary for you
 
 ## Citation
 
-> Choi, S. K. (2026). *Fontana Mix 2026: A chance-operations score generator for human–AI co-creative practice* [Computer software]. https://github.com/sukkyoungc/fontana-mix
+> Choi, S. K. (2026). *Fontana Mix 2026: A chance-operations score generator
+> for human–AI co-creative practice* [Computer software]. Zenodo.
+> https://doi.org/10.5281/zenodo.24241992
 
-A DOI will be added here once the repository is archived.
+This DOI represents all versions and always resolves to the latest.
+
+Repository: https://github.com/sukkyoungc/fontana-mix
 
 ---
 
