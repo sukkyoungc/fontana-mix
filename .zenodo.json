@@ -1,0 +1,26 @@
+{
+  "title": "Fontana Mix 2026: A chance-operations score generator for human-AI co-creative practice",
+  "description": "A browser-based open-score instrument for human-AI co-creative practice, after John Cage's Fontana Mix (1958). Two eight-sided dice cast an I Ching hexagram, which deterministically produces a composite score: selections from three vocabulary sheets (Language, Image, Process), a compositional diagram governing placement, rotation and scale, generated mark fields, and a prompt directive for generative image synthesis. Built as the practice-based core of a cognitive-autoethnographic study of human-AI co-creation in neural painting, the instrument sets chance operations against the convergent tendencies of generative inference, a condition the project calls restricted indeterminacy. Because every cast is deterministic and timestamped, the transformation of creative intention between score directive and enacted response is preserved as a measurable record. The deposit includes the instrument as a single self-contained HTML file and the performance log of the documented test performance.",
+  "upload_type": "software",
+  "license": "cc-by-sa-4.0",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Choi, S. K.",
+      "affiliation": "University of Calgary",
+      "orcid": "0000-0003-4458-3167"
+    }
+  ],
+  "keywords": [
+    "chance operations",
+    "human-AI co-creation",
+    "neural painting",
+    "cognitive autoethnography",
+    "algorithmic meta-cognition",
+    "restricted indeterminacy",
+    "generative art",
+    "John Cage",
+    "I Ching",
+    "artistic research"
+  ]
+}
