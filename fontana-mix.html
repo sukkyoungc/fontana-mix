@@ -581,7 +581,7 @@
       When a sheet is inactive (toggled off by clicking its header), its mark field fades. When active, it illuminates at full opacity. The mark field is the sheet's visual identity — it changes with every cast, making each score visually distinct as well as textually distinct. After a cast, dormant (unselected) vocabulary items dim back and the mark field settles — the score asserts itself against the pool from which it was drawn.</div>
 
       <div class="about-section-title" style="margin-top:28px">the dice and the I Ching</div>
-      <div class="about-section-body">Two eight-sided dice are cast — digitally or entered from physical dice. Each die face maps to one of the eight I Ching trigrams (☰ Heaven through ☷ Earth). Their combination yields one of 64 hexagrams — the complete set of the I Ching. The hexagram number deterministically seeds all score selections: the same throw always produces the same score, making results citable and reproducible as research data. This follows John Cage's use of the I Ching from the early 1950s — not as randomness, but as a fixed yet impersonal mapping that displaces personal preference without abandoning structure.</div>
+      <div class="about-section-body">Two eight-sided dice are cast — digitally or entered from physical dice. Each die face maps to one of the eight I Ching trigrams (☰ Heaven through ☷ Earth). Their combination yields one of 64 hexagrams — the complete set of the I Ching. The throw (the pair of dice) deterministically seeds the vocabulary selections, the compositional diagram and the mark fields: the same throw, with the same sheets active, always produces the same score, making results citable and reproducible as research data. A sheet switched off is part of the cast: the remaining sheets then draw differently, and the log records which sheets were off. The prompt directive is a separate random draw from the selected terms, recorded rather than reproduced. This follows John Cage's use of the I Ching from the early 1950s — not as randomness, but as a fixed yet impersonal mapping that displaces personal preference without abandoning structure.</div>
     </div>
 
     <div class="about-section">
@@ -656,28 +656,32 @@ const ROTATIONS = [
 // Scale directives. `kind` drives representational rendering (r93):
 //  metric → box resizes to `area` fraction of the plane (linear factor = sqrt(area/0.5),
 //           mid-weight as the 0.5 reference); bleed → oversized box clipped at the frame;
-//           fragment → box replaced by (n-discard) small fragment rects (n, discard seeded).
+//           any other label (e.g. fragment) → plain reference box; the code does not interpret it.
+// v1.0.1: every directive is one draw from this list, so the random sequence is the same
+// for every throw whatever the directive says (r93–r94 drew two extra numbers for fragment).
+// A label may contain {n} and {m}: they are replaced by the throw's suggested numbers
+// (see throwNumbers), which are computed for every throw, whichever label is drawn.
 // `label` is the display text (what shows in caption, log, copy, present views).
 const SCALE_DIRECTIVES = [
   {label:"dominant — fill 70–80% of plane", kind:"metric", area:0.75},
   {label:"mid-weight — fill 40–60% of plane", kind:"metric", area:0.50},
   {label:"minor — fill 15–30% of plane", kind:"metric", area:0.22},
-  {label:"fragment", kind:"fragment"},
+  {label:"fragment — cut into {n}, discard {m}", kind:"label"},
   {label:"bleed — exceed frame on one side", kind:"bleed", area:1.15}
 ];
 const TRIGRAMS = [{sym:"☰",name:"Qian",element:"Heaven"},{sym:"☱",name:"Dui",element:"Lake"},{sym:"☲",name:"Li",element:"Fire"},{sym:"☳",name:"Zhen",element:"Thunder"},{sym:"☴",name:"Xun",element:"Wind"},{sym:"☵",name:"Kan",element:"Water"},{sym:"☶",name:"Gen",element:"Mountain"},{sym:"☷",name:"Kun",element:"Earth"}];
 // King Wen sequence lookup [die1][die2] -> traditional hexagram number
 const KING_WEN = {
   1:[1,10,13,25,44,6,33,12],
-  2:[19,58,49,17,28,47,31,45],
+  2:[43,58,49,17,28,47,31,45],
   3:[14,38,30,21,50,64,56,35],
   4:[34,54,55,51,32,40,62,16],
-  5:[43,61,37,42,57,59,53,20],
+  5:[9,61,37,42,57,59,53,20],
   6:[5,60,63,3,48,29,39,8],
   7:[26,41,22,27,18,4,52,23],
-  8:[11,45,36,24,46,7,15,2]
+  8:[11,19,36,24,46,7,15,2]
 };
-// Wilhelm/Baynes hexagram names in King Wen order (index 0 = hexagram 1)
+// Short English hexagram names, King Wen order (index 0 = hexagram 1); numbering checked against the standard King Wen sequence (v1.0.1)
 const HEXAGRAM_NAMES = [
   "The Creative","The Receptive","Difficulty at the Beginning","Youthful Folly",
   "Waiting","Conflict","The Army","Holding Together",
@@ -816,22 +820,24 @@ function renderInputDieOctagon(svgEl, valid, n) {
   svgEl.innerHTML = `<polygon points="${pts}" fill="${valid?'#0a0a0a':'#1a1612'}" stroke="${valid?'#c8a97e':'#aaa'}" stroke-width="${valid?1:1.5}" opacity="0.9"/>${edge}`;
 }
 
-function generateComposition(rng) {
+// Suggested numbers for a throw: a second generator, seeded from the dice and independent of the
+// main sequence. n is 3–7; m is 1 to n−1. Same dice, same numbers; the main sequence is untouched.
+function throwNumbers(idx) {
+  const g = mulberry32(((idx * 2654435761) + 97) >>> 0);
+  const n = 3 + Math.floor(g()*5);
+  const m = 1 + Math.floor(g()*(n-1));
+  return { n, m };
+}
+
+function generateComposition(rng, idx) {
   const p = DESIGN_PRINCIPLES[Math.floor(rng()*DESIGN_PRINCIPLES.length)];
   const rot = ROTATIONS[Math.floor(rng()*ROTATIONS.length)];
   const scDir = SCALE_DIRECTIVES[Math.floor(rng()*SCALE_DIRECTIVES.length)];
-  // Build the scale spec + display label. For fragment, derive N (3–7) and discard
-  // (1 .. N-1) deterministically from the same rng, so the operation is reproducible.
-  let scaleSpec, scaleLabel;
-  if (scDir.kind === 'fragment') {
-    const n = 3 + Math.floor(rng()*5);           // 3..7 fragments
-    const discard = 1 + Math.floor(rng()*(n-1));  // 1..n-1 discarded
-    scaleSpec = { kind:'fragment', n, discard };
-    scaleLabel = `fragment — cut into ${n}, discard ${discard}`;
-  } else {
-    scaleSpec = { kind:scDir.kind, area:scDir.area };
-    scaleLabel = scDir.label;
-  }
+  // The directive is one draw; its label is displayed as written, with {n} and {m} filled in
+  // from the throw's suggested numbers. No further draws from the main sequence depend on it.
+  const tn = throwNumbers(idx || 0);
+  const scaleSpec = { kind:scDir.kind, area:scDir.area };
+  const scaleLabel = scDir.label.replace('{n}', tn.n).replace('{m}', tn.m);
   const jit = () => rng()*0.08-0.04;
   const rx = p.xHint!==null ? p.xHint+jit() : 0.08+rng()*0.84;
   const ry = p.yHint!==null ? p.yHint+jit() : 0.08+rng()*0.84;
@@ -843,40 +849,22 @@ function renderCompDiagram(comp, present, large) {
   const W=large?480:present?220:240, H=large?356:present?164:178, col="#7e9ec8";
   const cx=comp.x*W, cy=comp.y*H;
   // Base box dimensions are the MID-WEIGHT (≈50% area) reference. r93: the box now
-  // resizes to the scored scale. Linear factor = sqrt(area / 0.5); fragment draws
-  // small pieces instead of one box; bleed oversizes and is clipped to the frame.
+  // resizes to the scored scale. Linear factor = sqrt(area / 0.5); bleed oversizes
+  // and is clipped to the frame; any other label draws the plain reference box.
   const bw0=large?140:present?60:70, bh0=large?104:present?44:52;
   const spec = comp.scaleSpec || { kind:'metric', area:0.5 };
   const sw = large?2:1.2, swThin = large?1.2:0.6, dash = large?'6,4':'3,2';
   const uid = 'cf'+Math.random().toString(36).slice(2,8); // unique clip id per render
   const rectWithCross = (w,h,fillOp) => `<rect x="${-w/2}" y="${-h/2}" width="${w}" height="${h}" fill="${col}${fillOp||'20'}" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${dash}"/><line x1="${-w/2}" y1="0" x2="${w/2}" y2="0" stroke="${col}" stroke-width="${swThin}" opacity="0.6"/><line x1="0" y1="${-h/2}" x2="0" y2="${h/2}" stroke="${col}" stroke-width="${swThin}" opacity="0.6"/>`;
   let shape, clipDef = '';
-  if (spec.kind === 'fragment') {
-    // Cut a mid-weight box into n cells, keep (n-discard), scatter them slightly.
-    const n = spec.n || 5, discard = spec.discard || 1, keep = Math.max(1, n - discard);
-    const cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n/cols);
-    const fw = bw0/cols, fh = bh0/rows;
-    let r = mulberry32(((n*131)+(discard*977))>>>0);
-    // choose which cells to keep
-    const cells = Array.from({length:n},(_,i)=>i);
-    for (let i=cells.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[cells[i],cells[j]]=[cells[j],cells[i]];}
-    const kept = cells.slice(0,keep);
-    const pieces = kept.map(ci=>{
-      const gx=(ci%cols), gy=Math.floor(ci/cols);
-      const px = -bw0/2 + fw*gx + fw/2 + (r()*fw*0.3 - fw*0.15);
-      const py = -bh0/2 + fh*gy + fh/2 + (r()*fh*0.3 - fh*0.15);
-      const pr = (r()*24-12);
-      return `<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) rotate(${pr.toFixed(1)})"><rect x="${(-fw*0.4).toFixed(1)}" y="${(-fh*0.4).toFixed(1)}" width="${(fw*0.8).toFixed(1)}" height="${(fh*0.8).toFixed(1)}" fill="${col}20" stroke="${col}" stroke-width="${swThin}"/></g>`;
-    }).join('');
-    shape = `<g transform="translate(${cx},${cy}) rotate(${comp.rotation})">${pieces}</g>`;
-  } else if (spec.kind === 'bleed') {
+  if (spec.kind === 'bleed') {
     // Oversize the box and clip it to the frame — it runs off one edge.
     const f = Math.sqrt((spec.area||1.15)/0.5);
     const bw=bw0*f, bh=bh0*f;
     clipDef = `<defs><clipPath id="${uid}"><rect x="0" y="0" width="${W}" height="${H}"/></clipPath></defs>`;
     shape = `<g clip-path="url(#${uid})"><g transform="translate(${cx},${cy}) rotate(${comp.rotation})">${rectWithCross(bw,bh)}</g></g>`;
   } else {
-    // Metric: resize to area fraction.
+    // Metric: resize to area fraction. Plain label (no area): reference box.
     const f = Math.sqrt((spec.area||0.5)/0.5);
     shape = `<g transform="translate(${cx},${cy}) rotate(${comp.rotation})">${rectWithCross(bw0*f,bh0*f)}</g>`;
   }
@@ -915,10 +903,11 @@ function resolveScore(d1, d2) {
   const rng = mulberry32(idx * 1013904223);
   const s = {};
   if (state.activeSheets.language) s.language = seededPick(SHEETS.language.items, SHEETS.language.pick, rng);
-  if (state.activeSheets.image) { s.image = seededPick(SHEETS.image.items, SHEETS.image.pick, rng); s.composition = generateComposition(rng); }
+  if (state.activeSheets.image) { s.image = seededPick(SHEETS.image.items, SHEETS.image.pick, rng); s.composition = generateComposition(rng, idx); }
   if (state.activeSheets.process) s.process = seededPick(SHEETS.process.items, SHEETS.process.pick, rng);
   s.prompt = buildPrompt(s.language, s.image, s.process);
   s.die1=d1; s.die2=d2; s.hexNum=hexNum; s.hexName=hexName;
+  s.sheets = { ...state.activeSheets }; // part of the cast: an inactive sheet changes what the others draw
   return s;
 }
 
@@ -1868,6 +1857,7 @@ function recordCast(s, imgName) {
   const entry = {
     t: now(), die1:s.die1, die2:s.die2, hexNum:s.hexNum,
     hexName: s.hexNum ? HEXAGRAM_NAMES[s.hexNum-1] : null,
+    sheets:s.sheets||null,
     language:s.language||[], image:s.image||[], process:s.process||[],
     composition:s.composition||null, prompt:s.prompt, bankImage:imgName||null,
     bankImageOverridden:false
@@ -1917,6 +1907,11 @@ function generateLog() {
       log += `  CAST ${gc}  `;
       if (upper&&lower) log += `${upper.sym}${lower.sym} · no.${c.hexNum} · ${c.hexName}  `;
       log += `[${fmtTime(c.t)}]\n`;
+      if (c.sheets && !(c.sheets.language && c.sheets.image && c.sheets.process)) {
+        const on = ['language','image','process'].filter(k => c.sheets[k]);
+        const off = ['language','image','process'].filter(k => !c.sheets[k]);
+        log += `  SHEETS: ${on.join(' + ') || 'none'} (off: ${off.join(', ')})\n`;
+      }
       if (c.language?.length) log += `  LANGUAGE: ${c.language.join(' · ')}\n`;
       if (c.image?.length) log += `  IMAGE: ${c.image.join(' · ')}\n`;
       if (c.process?.length) log += `  PROCESS: ${c.process.join(' · ')}\n`;
@@ -2258,6 +2253,10 @@ function restoreLastScore() {
     state.perf.sessions.forEach(s => s.casts.forEach(c => { if (!c.type) { last = c; count++; } }));
     if (!last || !last.die1 || !last.die2) return;
     state.castIndex = count;
+    // Recompute with the sheets that were active for that cast (recorded from r95;
+    // for older records, inferred from which selections are present).
+    state.activeSheets = last.sheets ? { ...last.sheets } : {
+      language: (last.language||[]).length > 0, image: (last.image||[]).length > 0, process: (last.process||[]).length > 0 };
     const s = resolveScore(last.die1, last.die2);
     // Prefer the exact stored composition/prompt (override fidelity) over re-derived.
     if (last.composition) s.composition = last.composition;
@@ -2342,7 +2341,7 @@ setInterval(() => {
 
 // Single source of truth for the displayed version — the ONLY place the version
 // string lives. Set this to match the snapshot filename at each save.
-const FM_VERSION = 'r94';
+const FM_VERSION = 'r95';
 (function setVersionTags(){
   const a = document.getElementById('version-tag');
   const b = document.getElementById('about-version-tag');
