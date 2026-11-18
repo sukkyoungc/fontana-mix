@@ -7,7 +7,7 @@ The development dialogue itself is research material for a later phase of the pr
 | When (version) | Decision | Decided by | Implemented by | Checked |
 |---|---|---|---|---|
 | 29 Mar 2026 (first build) | Cast with two eight-sided dice: 64 combinations, echoing the I Ching's 64 hexagrams. | Author | AI | |
-| 29 Mar 2026 (first build) | The throw seeds the score deterministically, so that the same throw always gives the same score and a cast can be cited and reproduced. | Proposed by AI; adopted by the author | AI | Yes, within each version. |
+| 29 Mar 2026 (first build) | The throw seeds the score deterministically, so that the same throw always gives the same score and a cast can be cited and reproduced. | Proposed by AI; approved by the author | AI | Yes, within each version. |
 | Spring 2026 (to r35) | Hexagram number shown as the dice position (1 to 64), with provisional names. | Not recorded as an author decision | AI | Replaced at r36. |
 | By June 2026 (r36) | Show the traditional King Wen number and name, so that a performer can consult a printed translation (Wilhelm/Baynes) alongside the instrument. The seed stays on the dice, so earlier records are unchanged. | Author | AI, writing the 64-cell table from recall | One cell only. Three cells were wrong until v1.0.1. |
 | August 2026 (r92) | Documented test performance (log Casts 1 to 22). | Author | | The log reproduces exactly in r92 (tested 17 Nov 2026). |
